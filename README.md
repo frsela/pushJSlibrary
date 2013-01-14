@@ -29,3 +29,7 @@ navigator.push.change:
 ```
 
 In future release, re-config methods will be provided.
+
+## CDN
+
+The last release of the JS library is available in: <a href="http://frsela.github.com/pushJSlibrary/">http://frsela.github.com/pushJSlibrary/</a>
