@@ -28,11 +28,11 @@ _Push.prototype = {
     ssl: true
   },
   wakeup: {
-    ip: "localhost",
-    port: "8080",
-    protocol: "tcp",
-    mcc: "214",
-    mnc: ""//"07", // Commented to avoid UDP wakeup on desktop !
+    ip: 'localhost',
+    port: '8080',
+    protocol: 'tcp',
+    mcc: '214',
+    mnc: ''//'07', // Commented to avoid UDP wakeup on desktop !
   },
 
   /////////////////////////////////////////////////////////////////////////
@@ -42,9 +42,17 @@ _Push.prototype = {
   requestURL: function(watoken, pbk) {
     var cb = {};
 
+    if(!watoken || !pbk) {
+      this.debug('[requestURL] Error, no WAToken nor PBK provided');
+      setTimeout(function() {
+        if(cb.onerror) cb.onerror('Error, no WAToken nor PBK provided');
+      });
+      return cb;
+    }
+
     this.registerUA(function () {
       this.registerWA(watoken, pbk, function(URL) {
-        this.debug("[registerWA Callback] URL: ",URL);
+        this.debug('[registerWA Callback] URL: ',URL);
         if(cb.onsuccess) {
           cb.onsuccess(URL);
         }
@@ -52,12 +60,11 @@ _Push.prototype = {
     }.bind(this));
 
     window.addEventListener('pushmessage', function(event) {
-      this.debug("[pushmessage Callback] Message: ",event);
+      this.debug('[pushmessage Callback] Message: ',event);
       if(cb.onmessage) {
         cb.onmessage(event.detail.message);
       }
     });
-
 
     return cb;
   },
@@ -74,7 +81,7 @@ _Push.prototype = {
       return;
     }
 
-    this.debug("Initializing");
+    this.debug('Initializing');
 
     this.server.ad_ws = 'ws'+(this.server.ssl ? 's' : '')+'://';
     this.server.ad_ws += this.server.host;
@@ -166,7 +173,7 @@ _Push.prototype = {
         watoken: token,
         pbkbase64: pbk                                                                              //utf8_to_b64(this.pbk)
       },
-      messageType: "registerWA"
+      messageType: 'registerWA'
     });
   },
 
@@ -215,7 +222,7 @@ _Push.prototype = {
         },
         protocol: this.wakeup.protocol
       },
-      messageType: "registerUA"
+      messageType: 'registerUA'
     });
   },
 
@@ -263,7 +270,7 @@ _Push.prototype = {
         window.dispatchEvent(event);
 
         this.sendWS({
-          messageType: "ack",
+          messageType: 'ack',
           messageId: msg.messageId
         });
         break;
