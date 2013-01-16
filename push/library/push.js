@@ -25,7 +25,8 @@ _Push.prototype = {
   DEBUG: true,    // Enable/Disable DEBUG traces
   server: {
     host: 'localhost:8080',
-    ssl: true
+    ssl: true,
+    keepalive: 5000
   },
   wakeup: {
     ip: 'localhost',
@@ -224,12 +225,20 @@ _Push.prototype = {
       },
       messageType: 'registerUA'
     });
+
+    if(this.server.keepalive > 0) {
+      this.keepalivetimer = setInterval(function() {
+        this.debug('[Websocket Keepalive] Sending keepalive message. PING');
+        this.server.ws.connection.send('PING');
+      }.bind(this), this.server.keepalive);
+    }
   },
 
   onCloseWebsocket: function(e) {
     this.debug('[onCloseWebsocket] Closed connection to ' + this.server.ad +
       ' with code ' + e.code + ' and reason ' + e.reason);
     this.server.ws.ready = false;
+    clearInterval(this.keepalivetimer)
   },
 
   onErrorWebsocket: function(e) {
@@ -240,6 +249,9 @@ _Push.prototype = {
 
   onMessageWebsocket: function(e) {
     this.debug('[onMessageWebsocket] Message received --- ' + e.data);
+    if (e.data === 'PONG') {
+      return;
+    }
     var msg = JSON.parse(e.data);
     if(msg[0]) {
       for(var m in msg) {
