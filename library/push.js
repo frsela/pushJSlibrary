@@ -227,7 +227,7 @@ _Push.prototype = {
     });
 
     if(this.server.keepalive > 0) {
-      setInterval(function() {
+      this.keepalivetimer = setInterval(function() {
         this.debug('[Websocket Keepalive] Sending keepalive message. PING');
         this.server.ws.connection.send('PING');
       }.bind(this), this.server.keepalive);
@@ -238,6 +238,7 @@ _Push.prototype = {
     this.debug('[onCloseWebsocket] Closed connection to ' + this.server.ad +
       ' with code ' + e.code + ' and reason ' + e.reason);
     this.server.ws.ready = false;
+    clearInterval(this.keepalivetimer)
   },
 
   onErrorWebsocket: function(e) {
