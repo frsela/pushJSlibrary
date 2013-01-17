@@ -21,23 +21,6 @@
 function _Push() {
 }
 _Push.prototype = {
-  // Default parameters
-  DEBUG: true,    // Enable/Disable DEBUG traces
-  server: {
-    host: 'localhost',
-    port: 8080,
-    ssl: true,
-    keepalive: 5000
-  },
-  wakeup: {
-    enabled: false,
-    host: 'localhost',
-    port: 8080,
-    protocol: 'tcp',
-    mcc: '214',
-    mnc: '07'
-  },
-
   /////////////////////////////////////////////////////////////////////////
   // Push methods
   /////////////////////////////////////////////////////////////////////////
@@ -87,7 +70,7 @@ _Push.prototype = {
    *   ---> FOLLOWING attributes are only used for testing purpose in order
    *        to simulate UDP/TCP wakeup service in the client machine.
    *        use only if you know what are you doing <---
-   *  "wakeup_enabled": [ true | false ]
+   *  "wakeup_enabled": [ true | false ],
    *  "wakeup_host": "WAKEUP_HOSTNAME",
    *  "wakeup_port: WAKEUP_PORT,
    *  "wakeup_protocol: [ 'tcp' | 'udp' ],
@@ -166,6 +149,27 @@ _Push.prototype = {
   /////////////////////////////////////////////////////////////////////////
   // Auxiliar methods (out of the standard, only used on this fallback)
   /////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Set to defaults
+   */
+  defaultconfig: function() {
+    this.server = {};
+    this.wakeup = {};
+    this.setup({
+      debug: true,
+      host: 'localhost',
+      port: 8080,
+      ssl: true,
+      keepalive: 5000,
+      wakeup_enabled: false,
+      wakeup_host: 'localhost',
+      wakeup_port: 8080,
+      wakeup_protocol: 'tcp',
+      wakeup_mcc: '214',
+      wakeup_mnc: '07'
+    })
+  },
 
   /**
    * Initialize
@@ -444,6 +448,7 @@ _Push.prototype = {
     debug('No push supported by your browser. Falling back');
     navigator.push = new _Push();
     navigator.mozPush = navigator.push;
+    navigator.push.defaultconfig();
     navigator.push.init();
   }
 
