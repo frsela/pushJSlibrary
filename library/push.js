@@ -99,65 +99,63 @@ _Push.prototype = {
     if(!data)
       return;
 
+    // Setupable parameters:
+    //  id: [ 'DESCRIPTION', 'attribute to store in', Shall be reinit? ]
+    var _params = {
+      host: ['hostname', 'this.server.host', true],
+      port: ['port', 'this.server.port', true],
+      ssl: ['ssl', 'this.server.ssl', true],
+
+      // Out of the W3C standard
+      debug: ['DEBUG', 'this.DEBUG', false],
+      keepalive: ['keepalive', 'this.server.keepalive', true],
+
+      // WakeUp development parameters
+      wakeup_enabled: ['WakeUp ENABLED', 'this.wakeup.enabled', true],
+      wakeup_host: ['WakeUp host', 'this.wakeup.host', true],
+      wakeup_port: ['WakeUp port', 'this.wakeup.port', true],
+      wakeup_protocol: ['WakeUp protocol', 'this.wakeup.protocol', true],
+      wakeup_mcc: ['WakeUp MCC', 'this.wakeup.mcc', true],
+      wakeup_mnc: ['WakeUp MNC', 'this.wakeup.mnc', true]
+    };
+    var _setup = function(param, value) {
+      if(param === undefined) {
+        this.debug('[setup::_setup] No recognized param value');
+        return;
+      }
+      if (value === undefined) {
+        return;
+      }
+
+      this.debug('[setup::_setup] Changing ' + param[0] + ' to: ' + value);
+      if(typeof(value) == 'string') {
+        eval(param[1] += ' = "' + value + '"');
+      } else {
+        eval(param[1] += ' = ' + value);
+      }
+      if (param[2])
+        this.initialized = false;
+    }.bind(this);
+
     this.debug('[setup] Setup data received: ', data);
-    var changed = false;
-    if (data.host != undefined) {
-      this.debug('[setup] Changing hostname to: ' + data.host);
-      this.server.host = data.host;
-      changed = true;
-    }
-    if (data.port != undefined) {
-      this.debug('[setup] Changing port to: ' + data.port);
-      this.server.port = data.port;
-      changed = true;
-    }
-    if (data.ssl != undefined) {
-      this.debug('[setup] Changing SSL to: ', (data.ssl ? 'ON' : 'OFF'));
-      this.server.ssl = data.ssl;
-      changed = true;
-    }
+    _setup(_params.host, data.host);
+    _setup(_params.port, data.port);
+    _setup(_params.ssl, data.ssl);
 
     // Out of the W3C standard
-    if (data.debug != undefined) {
-      this.debug('[setup] Changing DEBUG to: ', data.debug);
-      this.DEBUG = data.debug;
-    }
-    if (data.keepalive != undefined) {
-      this.debug('[setup] Changing port to: ' + data.port);
-      this.server.keepalive = data.keepalive;
-      changed = true;
-    }
+    _setup(_params.debug, data.debug);
+    _setup(_params.keepalive, data.keepalive);
 
     // WakeUp development parameters
-    if (data.wakeup_enabled != undefined) {
-      this.debug('[setup] Changing WakeUp ENABLED to: ' + (data.wakeup_enabled ? 'ON' : 'OFF'));
-      this.wakeup.enabled = data.wakeup_enabled;
-      changed = true;
-    }
-    if (data.wakeup_host != undefined) {
-      this.debug('[setup] Changing WakeUp HOST to: ' + data.wakeup_host);
-      this.wakeup.host = data.wakeup_host;
-      changed = true;
-    }
-    if (data.wakeup_port != undefined) {
-      this.debug('[setup] Changing WakeUp PORT to: ' + data.wakeup_port);
-      this.wakeup.port = data.wakeup_port;
-      changed = true;
-    }
-    if (data.wakeup_mcc != undefined) {
-      this.debug('[setup] Changing WakeUp MCC to: ' + data.wakeup_mcc);
-      this.wakeup.mcc = data.wakeup_mcc;
-      changed = true;
-    }
-    if (data.wakeup_mnc != undefined) {
-      this.debug('[setup] Changing WakeUp MNC to: ' + data.wakeup_mnc);
-      this.wakeup.mnc = data.wakeup_mnc;
-      changed = true;
-    }
+    _setup(_params.wakeup_enabled, data.wakeup_enabled);
+    _setup(_params.wakeup_host, data.wakeup_host);
+    _setup(_params.wakeup_port, data.wakeup_port);
+    _setup(_params.wakeup_protocol, data.wakeup_protocol);
+    _setup(_params.wakeup_mcc, data.wakeup_mcc);
+    _setup(_params.wakeup_mnc, data.wakeup_mnc);
 
-    if (changed) {
+    if (!this.initialized) {
       this.debug('[setup] Reinitializing . . .');
-      this.initialized = false;
       this.init();
     }
     this.debug('[setup] Current status SERVER: ', this.server);
