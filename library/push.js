@@ -24,7 +24,8 @@ _Push.prototype = {
   // Default parameters
   DEBUG: true,    // Enable/Disable DEBUG traces
   server: {
-    host: 'localhost:8080',
+    host: 'localhost',
+    port: 8080,
     ssl: true,
     keepalive: 5000
   },
@@ -179,9 +180,9 @@ _Push.prototype = {
     this.debug('Initializing');
 
     this.server.ad_ws = 'ws'+(this.server.ssl ? 's' : '')+'://';
-    this.server.ad_ws += this.server.host;
+    this.server.ad_ws += this.server.host + ':' + this.server.port;
     this.server.ad_http = 'http'+(this.server.ssl ? 's' : '')+'://';
-    this.server.ad_http += this.server.host;
+    this.server.ad_http += this.server.host+ ':' + this.server.port;
 
     this.server.ws = {
       connection: null,
