@@ -34,10 +34,10 @@ navigator.push.setup({
         use only if you know what are you doing <---
    "wakeup_enabled": [ true | false ],
    "wakeup_host": "WAKEUP_HOSTNAME",
-   "wakeup_port: WAKEUP_PORT,
-   "wakeup_protocol: [ 'tcp' | 'udp' ],
-   "wakeup_mcc: 'MOBILE COUNTRY CODE',
-   "wakeup_mnc: 'MOBILE NETWORK CODE'
+   "wakeup_port": WAKEUP_PORT,
+   "wakeup_protocol": [ 'tcp' | 'udp' ],
+   "wakeup_mcc": 'MOBILE COUNTRY CODE',
+   "wakeup_mnc": 'MOBILE NETWORK CODE'
 });
 ```
 
