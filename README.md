@@ -16,19 +16,23 @@ Import this JS library. From the app register the URL:
 navigator.push.requestURL(WAToken, PublicKey (in Base64));
 ```
 
-To change the default configuration:
-
-navigator.push.change:
+To change the default configuration use the setup method:
 
 ```javascript
-  DEBUG: true,    // Enable/Disable DEBUG traces
-  server: {
-    host: 'localhost:8080',
-    ssl: true
-  }
+navigator.push.setup({
+  "host": "PUSH_SERVER_HOSTNAME",
+  "port": PUSH_SERVER_PORT,
+  "ssl" : [ true | false ]
+
+   ---> FOLLOWING attributes are only used in this fallback library <---
+
+   "debug": [ true | false ],
+   "keepalive": WEBSOCKET_KEEPALIVE_TIMER (in msecs)
+});
 ```
 
-In future release, re-config methods will be provided.
+Each JSON attribute is optional, so you can configure one, two or all in a
+single request.
 
 ## CDN
 

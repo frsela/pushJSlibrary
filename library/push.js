@@ -70,6 +70,62 @@ _Push.prototype = {
     return cb;
   },
 
+  /**
+   * Setup PUSH interface
+   * data is a JSON object with these attributes:
+   * {
+   *  "host": "PUSH_SERVER_HOSTNAME",
+   *  "port": PUSH_SERVER_PORT,
+   *  "ssl": [ true | false ],
+   *
+   *   ---> FOLLOWING attributes are only used in this fallback library <---
+   *  "debug": [ true | false ],
+   *  "keepalive": WEBSOCKET_KEEPALIVE_TIMER (in msecs)
+   * }
+   */
+  setup: function(data) {
+    if(!data)
+      return;
+
+    this.debug('[setup] Setup data received: ', data);
+    var changed = false;
+    if (data.host != undefined) {
+      this.debug('[setup] Changing hostname to: ' + data.host);
+      this.server.host = data.host;
+      changed = true;
+    }
+    if (data.port != undefined) {
+      this.debug('[setup] Changing port to: ' + data.port);
+      this.server.port = data.port;
+      changed = true;
+    }
+    if (data.ssl != undefined) {
+      this.debug('[setup] Changing SSL to: ', (data.ssl ? 'ON' : 'OFF'));
+      this.server.ssl = data.ssl;
+      changed = true;
+    }
+
+    // Out of the W3C standard
+    if (data.debug != undefined) {
+      this.debug('[setup] Changing DEBUG to: ', data.debug);
+      this.DEBUG = data.debug;
+    }
+    if (data.keepalive != undefined) {
+      this.debug('[setup] Changing port to: ' + data.port);
+      this.server.keepalive = data.keepalive;
+      changed = true;
+    }
+
+    if (changed) {
+      this.debug('[setup] Reinitializing');
+      this.initialized = false;
+      this.init();
+    }
+    this.debug('[setup] Current status SERVER: ', this.server);
+    this.debug('[setup] Current status WAKEUP: ', this.wakeup);
+    this.debug('[setup] Current status DEBUG: ', (this.DEBUG ? 'ON' : 'OFF'));
+  },
+
   /////////////////////////////////////////////////////////////////////////
   // Auxiliar methods (out of the standard, only used on this fallback)
   /////////////////////////////////////////////////////////////////////////
