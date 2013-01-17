@@ -28,11 +28,23 @@ navigator.push.setup({
 
    "debug": [ true | false ],
    "keepalive": WEBSOCKET_KEEPALIVE_TIMER (in msecs)
+
+   ---> FOLLOWING attributes are only used for testing purpose in order
+        to simulate UDP/TCP wakeup service in the client machine.
+        use only if you know what are you doing <---
+   "wakeup_enabled": [ true | false ]
+   "wakeup_host": "WAKEUP_HOSTNAME",
+   "wakeup_port: WAKEUP_PORT,
+   "wakeup_protocol: [ 'tcp' | 'udp' ],
+   "wakeup_mcc: 'MOBILE COUNTRY CODE',
+   "wakeup_mnc: 'MOBILE NETWORK CODE'
 });
 ```
 
 Each JSON attribute is optional, so you can configure one, two or all in a
 single request.
+
+Call setup before any other use
 
 ## CDN
 

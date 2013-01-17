@@ -29,11 +29,12 @@ _Push.prototype = {
     keepalive: 5000
   },
   wakeup: {
-    ip: 'localhost',
-    port: '8080',
+    enabled: false,
+    host: 'localhost',
+    port: 8080,
     protocol: 'tcp',
     mcc: '214',
-    mnc: ''//'07', // Commented to avoid UDP wakeup on desktop !
+    mnc: '07'
   },
 
   /////////////////////////////////////////////////////////////////////////
@@ -80,7 +81,17 @@ _Push.prototype = {
    *
    *   ---> FOLLOWING attributes are only used in this fallback library <---
    *  "debug": [ true | false ],
-   *  "keepalive": WEBSOCKET_KEEPALIVE_TIMER (in msecs)
+   *  "keepalive": WEBSOCKET_KEEPALIVE_TIMER (in msecs),
+   *
+   *   ---> FOLLOWING attributes are only used for testing purpose in order
+   *        to simulate UDP/TCP wakeup service in the client machine.
+   *        use only if you know what are you doing <---
+   *  "wakeup_enabled": [ true | false ]
+   *  "wakeup_host": "WAKEUP_HOSTNAME",
+   *  "wakeup_port: WAKEUP_PORT,
+   *  "wakeup_protocol: [ 'tcp' | 'udp' ],
+   *  "wakeup_mcc: 'MOBILE COUNTRY CODE',
+   *  "wakeup_mnc: 'MOBILE NETWORK CODE'
    * }
    */
   setup: function(data) {
@@ -116,8 +127,35 @@ _Push.prototype = {
       changed = true;
     }
 
+    // WakeUp development parameters
+    if (data.wakeup_enabled != undefined) {
+      this.debug('[setup] Changing WakeUp ENABLED to: ' + (data.wakeup_enabled ? 'ON' : 'OFF'));
+      this.wakeup.enabled = data.wakeup_enabled;
+      changed = true;
+    }
+    if (data.wakeup_host != undefined) {
+      this.debug('[setup] Changing WakeUp HOST to: ' + data.wakeup_host);
+      this.wakeup.host = data.wakeup_host;
+      changed = true;
+    }
+    if (data.wakeup_port != undefined) {
+      this.debug('[setup] Changing WakeUp PORT to: ' + data.wakeup_port);
+      this.wakeup.port = data.wakeup_port;
+      changed = true;
+    }
+    if (data.wakeup_mcc != undefined) {
+      this.debug('[setup] Changing WakeUp MCC to: ' + data.wakeup_mcc);
+      this.wakeup.mcc = data.wakeup_mcc;
+      changed = true;
+    }
+    if (data.wakeup_mnc != undefined) {
+      this.debug('[setup] Changing WakeUp MNC to: ' + data.wakeup_mnc);
+      this.wakeup.mnc = data.wakeup_mnc;
+      changed = true;
+    }
+
     if (changed) {
-      this.debug('[setup] Reinitializing');
+      this.debug('[setup] Reinitializing . . .');
       this.initialized = false;
       this.init();
     }
@@ -266,21 +304,30 @@ _Push.prototype = {
 
     // We shall registerUA each new connection
     this.debug('[onOpenWebsocket] Started registration to the notification server');
-    this.sendWS({
-      data: {
-        uatoken: this.token,
-        'interface': {
-          ip: this.wakeup.ip,
-          port: this.wakeup.port
+    if (this.wakeup.enabled) {
+      this.sendWS({
+        data: {
+          uatoken: this.token,
+          'interface': {
+            ip: this.wakeup.host,
+            port: this.wakeup.port
+          },
+          mobilenetwork: {
+            mcc: this.wakeup.mcc,
+            mnc: this.wakeup.mnc
+          },
+          protocol: this.wakeup.protocol
         },
-        mobilenetwork: {
-          mcc: this.wakeup.mcc,
-          mnc: this.wakeup.mnc
+        messageType: 'registerUA'
+      });
+    } else {
+      this.sendWS({
+        data: {
+          uatoken: this.token,
         },
-        protocol: this.wakeup.protocol
-      },
-      messageType: 'registerUA'
-    });
+        messageType: 'registerUA'
+      });
+    }
 
     if(this.server.keepalive > 0) {
       this.keepalivetimer = setInterval(function() {
