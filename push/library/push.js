@@ -21,21 +21,6 @@
 function _Push() {
 }
 _Push.prototype = {
-  // Default parameters
-  DEBUG: true,    // Enable/Disable DEBUG traces
-  server: {
-    host: 'localhost:8080',
-    ssl: true,
-    keepalive: 5000
-  },
-  wakeup: {
-    ip: 'localhost',
-    port: '8080',
-    protocol: 'tcp',
-    mcc: '214',
-    mnc: ''//'07', // Commented to avoid UDP wakeup on desktop !
-  },
-
   /////////////////////////////////////////////////////////////////////////
   // Push methods
   /////////////////////////////////////////////////////////////////////////
@@ -70,9 +55,121 @@ _Push.prototype = {
     return cb;
   },
 
+  /**
+   * Setup PUSH interface
+   * data is a JSON object with these attributes:
+   * {
+   *  "host": "PUSH_SERVER_HOSTNAME",
+   *  "port": PUSH_SERVER_PORT,
+   *  "ssl": [ true | false ],
+   *
+   *   ---> FOLLOWING attributes are only used in this fallback library <---
+   *  "debug": [ true | false ],
+   *  "keepalive": WEBSOCKET_KEEPALIVE_TIMER (in msecs),
+   *
+   *   ---> FOLLOWING attributes are only used for testing purpose in order
+   *        to simulate UDP/TCP wakeup service in the client machine.
+   *        use only if you know what are you doing <---
+   *  "wakeup_enabled": [ true | false ],
+   *  "wakeup_host": "WAKEUP_HOSTNAME",
+   *  "wakeup_port: WAKEUP_PORT,
+   *  "wakeup_protocol: [ 'tcp' | 'udp' ],
+   *  "wakeup_mcc: 'MOBILE COUNTRY CODE',
+   *  "wakeup_mnc: 'MOBILE NETWORK CODE'
+   * }
+   */
+  setup: function(data) {
+    if(!data)
+      return;
+
+    // Setupable parameters:
+    //  id: [ 'DESCRIPTION', 'attribute to store in', Shall be reinit? ]
+    var _params = {
+      host: ['hostname', 'this.server.host', true],
+      port: ['port', 'this.server.port', true],
+      ssl: ['ssl', 'this.server.ssl', true],
+
+      // Out of the W3C standard
+      debug: ['DEBUG', 'this.DEBUG', false],
+      keepalive: ['keepalive', 'this.server.keepalive', true],
+
+      // WakeUp development parameters
+      wakeup_enabled: ['WakeUp ENABLED', 'this.wakeup.enabled', true],
+      wakeup_host: ['WakeUp host', 'this.wakeup.host', true],
+      wakeup_port: ['WakeUp port', 'this.wakeup.port', true],
+      wakeup_protocol: ['WakeUp protocol', 'this.wakeup.protocol', true],
+      wakeup_mcc: ['WakeUp MCC', 'this.wakeup.mcc', true],
+      wakeup_mnc: ['WakeUp MNC', 'this.wakeup.mnc', true]
+    };
+    var _setup = function(param, value) {
+      if(param === undefined) {
+        this.debug('[setup::_setup] No recognized param value');
+        return;
+      }
+      if (value === undefined) {
+        return;
+      }
+
+      this.debug('[setup::_setup] Changing ' + param[0] + ' to: ' + value);
+      if(typeof(value) == 'string') {
+        eval(param[1] += ' = "' + value + '"');
+      } else {
+        eval(param[1] += ' = ' + value);
+      }
+      if (param[2])
+        this.initialized = false;
+    }.bind(this);
+
+    this.debug('[setup] Setup data received: ', data);
+    _setup(_params.host, data.host);
+    _setup(_params.port, data.port);
+    _setup(_params.ssl, data.ssl);
+
+    // Out of the W3C standard
+    _setup(_params.debug, data.debug);
+    _setup(_params.keepalive, data.keepalive);
+
+    // WakeUp development parameters
+    _setup(_params.wakeup_enabled, data.wakeup_enabled);
+    _setup(_params.wakeup_host, data.wakeup_host);
+    _setup(_params.wakeup_port, data.wakeup_port);
+    _setup(_params.wakeup_protocol, data.wakeup_protocol);
+    _setup(_params.wakeup_mcc, data.wakeup_mcc);
+    _setup(_params.wakeup_mnc, data.wakeup_mnc);
+
+    if (!this.initialized) {
+      this.debug('[setup] Reinitializing . . .');
+      this.init();
+    }
+    this.debug('[setup] Current status SERVER: ', this.server);
+    this.debug('[setup] Current status WAKEUP: ', this.wakeup);
+    this.debug('[setup] Current status DEBUG: ', (this.DEBUG ? 'ON' : 'OFF'));
+  },
+
   /////////////////////////////////////////////////////////////////////////
   // Auxiliar methods (out of the standard, only used on this fallback)
   /////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Set to defaults
+   */
+  defaultconfig: function() {
+    this.server = {};
+    this.wakeup = {};
+    this.setup({
+      debug: true,
+      host: 'localhost',
+      port: 8080,
+      ssl: true,
+      keepalive: 5000,
+      wakeup_enabled: false,
+      wakeup_host: 'localhost',
+      wakeup_port: 8080,
+      wakeup_protocol: 'tcp',
+      wakeup_mcc: '214',
+      wakeup_mnc: '07'
+    })
+  },
 
   /**
    * Initialize
@@ -85,9 +182,9 @@ _Push.prototype = {
     this.debug('Initializing');
 
     this.server.ad_ws = 'ws'+(this.server.ssl ? 's' : '')+'://';
-    this.server.ad_ws += this.server.host;
+    this.server.ad_ws += this.server.host + ':' + this.server.port;
     this.server.ad_http = 'http'+(this.server.ssl ? 's' : '')+'://';
-    this.server.ad_http += this.server.host;
+    this.server.ad_http += this.server.host+ ':' + this.server.port;
 
     this.server.ws = {
       connection: null,
@@ -210,21 +307,30 @@ _Push.prototype = {
 
     // We shall registerUA each new connection
     this.debug('[onOpenWebsocket] Started registration to the notification server');
-    this.sendWS({
-      data: {
-        uatoken: this.token,
-        'interface': {
-          ip: this.wakeup.ip,
-          port: this.wakeup.port
+    if (this.wakeup.enabled) {
+      this.sendWS({
+        data: {
+          uatoken: this.token,
+          'interface': {
+            ip: this.wakeup.host,
+            port: this.wakeup.port
+          },
+          mobilenetwork: {
+            mcc: this.wakeup.mcc,
+            mnc: this.wakeup.mnc
+          },
+          protocol: this.wakeup.protocol
         },
-        mobilenetwork: {
-          mcc: this.wakeup.mcc,
-          mnc: this.wakeup.mnc
+        messageType: 'registerUA'
+      });
+    } else {
+      this.sendWS({
+        data: {
+          uatoken: this.token,
         },
-        protocol: this.wakeup.protocol
-      },
-      messageType: 'registerUA'
-    });
+        messageType: 'registerUA'
+      });
+    }
 
     if(this.server.keepalive > 0) {
       this.keepalivetimer = setInterval(function() {
@@ -342,6 +448,7 @@ _Push.prototype = {
     debug('No push supported by your browser. Falling back');
     navigator.push = new _Push();
     navigator.mozPush = navigator.push;
+    navigator.push.defaultconfig();
     navigator.push.init();
   }
 
