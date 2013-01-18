@@ -229,7 +229,7 @@ _Push.prototype = {
       return;
     }
 
-    var xmlhttp = new XMLHttpRequest();
+    var xmlhttp = new XMLHttpRequest({ mozSystem: true });
     xmlhttp.onreadystatechange = (function() {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
