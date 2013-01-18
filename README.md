@@ -48,6 +48,12 @@ Call setup before any other use
 
 To reset to factory defaults:
 
+To recover current setup:
+
+```javascript
+navigator.push.getSetup()
+```
+
 ```javascripot
 navigator.push.defaultconfig();
 ```

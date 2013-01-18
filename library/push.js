@@ -146,6 +146,25 @@ _Push.prototype = {
     this.debug('[setup] Current status DEBUG: ', (this.DEBUG ? 'ON' : 'OFF'));
   },
 
+  /**
+   * Current setup recovery
+   */
+  getSetup: function() {
+    return {
+      debug: this.DEBUG,
+      host: this.server.host,
+      port: this.server.port,
+      ssl: this.server.ssl,
+      keepalive: this.server.keepalive,
+      wakeup_enabled: this.wakeup.enabled,
+      wakeup_host: this.wakeup.host,
+      wakeup_port: this.wakeup.port,
+      wakeup_protocol: this.wakeup.protocol,
+      wakeup_mcc: this.wakeup.mcc,
+      wakeup_mnc: this.wakeup.mnc
+    };
+  },
+
   /////////////////////////////////////////////////////////////////////////
   // Auxiliar methods (out of the standard, only used on this fallback)
   /////////////////////////////////////////////////////////////////////////
