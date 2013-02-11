@@ -26,10 +26,15 @@ _Push.prototype = {
   /////////////////////////////////////////////////////////////////////////
 
   requestURL: function(watoken, pbk) {
+    this.debug('[requestURL] Warning, DEPRECATED method. Use requestRemotePermission');
+    return this.requestRemotePermission(watoken, pbk);
+  },
+
+  requestRemotePermission: function(watoken, pbk) {
     var cb = {};
 
     if(!watoken || !pbk) {
-      this.debug('[requestURL] Error, no WAToken nor PBK provided');
+      this.debug('[requestRemotePermission] Error, no WAToken nor PBK provided');
       setTimeout(function() {
         if(cb.onerror) cb.onerror('Error, no WAToken nor PBK provided');
       });
