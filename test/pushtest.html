@@ -8,8 +8,38 @@ and open the template in the editor.
     <title>PUSH LIBRARY TEST</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <script src="../library/push.js"></script>
+    <script><!--
+    function generateMQJSON() {
+		t = document.getElementById('queuedata');
+		json = {
+			"uaid": navigator.push.token,
+			"messageId": "abcd",
+			"payload": {
+				"appToken": navigator.push.publicURLs[0],
+				"channelID":"1234",
+				"version": 1
+			}
+		};
+		t.innerHTML = JSON.stringify(json);
+    }
+    --></script>
   </head>
   <body>
-    <div>TODO write content</div>
+    <h1>TEST PUSH SERVER</h1>
+    <div id="mozAPI">
+    	<button onclick="navigator.push.requestRemotePermission()">requestRemotePermission()</button>
+    	<button onclick="navigator.push.revokeRemotePermission()">revokeRemotePermission()</button>
+    </div>
+    <div id="extAPI">
+    </div>
+    <div id="mgntAPI">
+    	<button onclick="c = navigator.push.getSetup(); document.getElementById('setup_data').innerHTML = JSON.stringify(c)">getSetup()</button>
+    	<br />
+    	<textarea id="setup_data"></textarea>
+    </div>
+    <div>
+    	<button onclick="generateMQJSON()">getMessageQueueJSON</button>
+    	<textarea id="queuedata"></textarea>
+    </div>
   </body>
 </html>
