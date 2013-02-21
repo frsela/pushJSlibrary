@@ -287,9 +287,7 @@ _Push.prototype = {
 
     this.debug('[registerWA] Going to register WA');
     this.sendWS({
-      data: {
-        channelID: "1234"
-      },
+      channelID: "1234",
       messageType: 'register'
     });
   },
@@ -300,9 +298,7 @@ _Push.prototype = {
   unregisterWA: function() {
     this.debug('[unregisterWA] Going to unregister WA');
     this.sendWS({
-      data: {
-        channelID: "1234"
-      },
+      channelID: "1234",
       messageType: 'unregister'
     });
   },
@@ -341,25 +337,21 @@ _Push.prototype = {
     this.debug('[onOpenWebsocket] Started registration to the notification server');
     if (this.wakeup.enabled) {
       this.sendWS({
-        data: {
-          uaid: null,
-          'interface': {
-            ip: this.wakeup.host,
-            port: this.wakeup.port
-          },
-          mobilenetwork: {
-            mcc: this.wakeup.mcc,
-            mnc: this.wakeup.mnc
-          },
-          protocol: this.wakeup.protocol
+        uaid: null,
+        'interface': {
+          ip: this.wakeup.host,
+          port: this.wakeup.port
         },
+        mobilenetwork: {
+          mcc: this.wakeup.mcc,
+          mnc: this.wakeup.mnc
+        },
+        protocol: this.wakeup.protocol,
         messageType: 'hello'
       });
     } else {
       this.sendWS({
-        data: {
-          uaid: null,
-        },
+        uaid: null,
         messageType: 'hello'
       });
     }
