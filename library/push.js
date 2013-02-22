@@ -233,8 +233,6 @@ _Push.prototype = {
 
     this.server.ad_ws = 'ws'+(this.server.ssl ? 's' : '')+'://';
     this.server.ad_ws += this.server.host + ':' + this.server.port;
-    this.server.ad_http = 'http'+(this.server.ssl ? 's' : '')+'://';
-    this.server.ad_http += this.server.host+ ':' + this.server.port;
 
     this.server.ws = {
       connection: null,
