@@ -257,13 +257,6 @@ _Push.prototype = {
     }
 
     this.onRegisterUAMessage = function(msg) {
-      this.debug('[onRegisterUAMessage] TODO: Manage channelsIDs re-registration',
-        msg.channelIDs)
-      /*
-      for(var i in msg.channelIDs) {
-        // TODO - Manage re-registrations
-      }
-      */
       this.token = msg.uaid;
       if(cb) cb();
     }.bind(this);
@@ -336,6 +329,7 @@ _Push.prototype = {
     if (this.wakeup.enabled) {
       this.sendWS({
         uaid: null,
+        channelIDs: [],
         'interface': {
           ip: this.wakeup.host,
           port: this.wakeup.port
@@ -350,6 +344,7 @@ _Push.prototype = {
     } else {
       this.sendWS({
         uaid: null,
+        channelIDs: [],
         messageType: 'hello'
       });
     }
