@@ -10,38 +10,55 @@ and open the template in the editor.
     <script src="../library/push.js"></script>
     <script><!--
     function $(id) {
-		return document.getElementById(id);
+      return document.getElementById(id);
+    }
+    function register() {
+      var c = navigator.push.requestRemotePermission();
+      c.onsuccess=function(url) {
+        $('endpointURL').innerHTML = url;
+      }
+      c.onmessage=function(msg) {
+        $('asyncmsg').innerHTML = JSON.stringify(msg);
+      }
     }
     function generateMQJSON() {
-		t = $('queuedata');
-		json = {
-			"uaid": navigator.push.token,
-			"messageId": "abcd",
-			"payload": {
-				"appToken": navigator.push.publicURLs[0],
-				"channelID":"1234",
-				"version": 1
-			}
-		};
-		t.innerHTML = JSON.stringify(json);
+      t = $('queuedata');
+      json = {
+        "uaid": navigator.push.token,
+        "messageId": "abcd",
+        "payload": {
+          "appToken": navigator.push.publicURLs[0],
+          "channelID":"1234",
+          "version": 1
+        }
+      };
+      t.innerHTML = JSON.stringify(json);
     }
     function getSetup() {
-		c = navigator.push.getSetup();
-		$('setup_debug').checked = (c.debug === "true" ? true : false);
-		$('setup_host').value = c.host;
-		$('setup_port').value = c.port;
-		$('setup_ssl').checked = (c.ssl === "true" ? true : false);
-		$('setup_ka').value = c.keepalive;
-		$('setup_wu_enabled').checked = (c.wakeup_enabled === "true" ? true : false);
-		$('setup_wu_host').value = c.wakeup_host;
-		$('setup_wu_port').value = c.wakeup_port;
-		$('setup_wu_proto').value = c.wakeup_protocol;
-		$('setup_wu_mcc').value = c.wakeup_mcc;
-		$('setup_wu_mnc').value = c.wakeup_mnc;
+      c = navigator.push.getSetup();
+      $('setup_debug').checked = (c.debug === "true" ? true : false);
+      $('setup_host').value = c.host;
+      $('setup_port').value = c.port;
+      $('setup_ssl').checked = (c.ssl === "true" ? true : false);
+      $('setup_ka').value = c.keepalive;
+      $('setup_wu_enabled').checked = (c.wakeup_enabled === "true" ? true : false);
+      $('setup_wu_host').value = c.wakeup_host;
+      $('setup_wu_port').value = c.wakeup_port;
+      $('setup_wu_proto').value = c.wakeup_protocol;
+      $('setup_wu_mcc').value = c.wakeup_mcc;
+      $('setup_wu_mnc').value = c.wakeup_mnc;
     }
     function changeSetup(param, value) {
-		navigator.push.setup(JSON.parse('{"'+param+'": "'+value+'"}'));
-		getSetup();
+      navigator.push.setup(JSON.parse('{"'+param+'": "'+value+'"}'));
+      getSetup();
+    }
+    function updateVersion() {
+      var oReq = new XMLHttpRequest();
+      oReq.onload = function() {
+        console.log(this.responseText);
+      };
+      oReq.open('put', $('endpointURL').innerHTML, true);
+      oReq.send('version='+$('channelVersion').value);
     }
     window.onload = getSetup;
     --></script>
@@ -49,28 +66,35 @@ and open the template in the editor.
   <body>
     <h1>TEST PUSH SERVER</h1>
     <div id="mozAPI">
-    	<button onclick="navigator.push.requestRemotePermission()">requestRemotePermission()</button>
-    	<button onclick="navigator.push.revokeRemotePermission()">revokeRemotePermission()</button>
+      <div id="endpointURL"></div>
+      <button onclick="register()">register()</button>
+      <button onclick="navigator.push.revokeRemotePermission()">unregister()</button>
+      <div id="asyncmsg"></div>
     </div>
     <div id="extAPI">
     </div>
     <div id="mgntAPI" style="float: right; width: 300px; border: 1px solid black; position: relative; top: 0">
-		<h2>Push library setup</h2>
-		<input id="setup_debug" type="checkbox" onclick="changeSetup('debug',$('setup_debug').checked)" /> Debug enabled<br />
-		NS Server host <input id="setup_host" onchange="changeSetup('host',$('setup_host').value)" /><br />
-		NS Server port <input id="setup_port" onchange="changeSetup('port',$('setup_port').value)" /><br />
-		<input id="setup_ssl" type="checkbox" onclick="changeSetup('ssl',$('setup_ssl').checked)" /> SSL enabled<br />
-		Keepalive <input id="setup_ka" onchange="changeSetup('keepalive',$('setup_ka').value)" /> msec<br />
-		<input id="setup_wu_enabled" type="checkbox" onclick="changeSetup('wakeup_enabled',$('setup_wu_enabled').checked)" /> Wakeup enabled<br />
-		Wakeup host <input id="setup_wu_host" onchange="changeSetup('wakeup_host',$('setup_wu_host').value)" /><br />
-		Wakeup port <input id="setup_wu_port" onchange="changeSetup('wakeup_port',$('setup_wu_port').value)" /><br />
-		Wakeup protocol <input id="setup_wu_proto" onchange="changeSetup('wakeup_protocol',$('setup_wu_proto').value)" /><br />
-		Wakeup mcc <input id="setup_wu_mcc" onchange="changeSetup('wakeup_mcc',$('setup_wu_mcc').value)" /><br />
-		Wakeup mnc <input id="setup_wu_mnc" onchange="changeSetup('wakeup_mnc',$('setup_wu_mnc').value)" /><br />
-	</div>
+      <h2>Push library setup</h2>
+      <input id="setup_debug" type="checkbox" onclick="changeSetup('debug',$('setup_debug').checked)" /> Debug enabled<br />
+      NS Server host <input id="setup_host" onchange="changeSetup('host',$('setup_host').value)" /><br />
+      NS Server port <input id="setup_port" onchange="changeSetup('port',$('setup_port').value)" /><br />
+      <input id="setup_ssl" type="checkbox" onclick="changeSetup('ssl',$('setup_ssl').checked)" /> SSL enabled<br />
+      Keepalive <input id="setup_ka" onchange="changeSetup('keepalive',$('setup_ka').value)" /> msec<br />
+      <input id="setup_wu_enabled" type="checkbox" onclick="changeSetup('wakeup_enabled',$('setup_wu_enabled').checked)" /> Wakeup enabled<br />
+      Wakeup host <input id="setup_wu_host" onchange="changeSetup('wakeup_host',$('setup_wu_host').value)" /><br />
+      Wakeup port <input id="setup_wu_port" onchange="changeSetup('wakeup_port',$('setup_wu_port').value)" /><br />
+      Wakeup protocol <input id="setup_wu_proto" onchange="changeSetup('wakeup_protocol',$('setup_wu_proto').value)" /><br />
+      Wakeup mcc <input id="setup_wu_mcc" onchange="changeSetup('wakeup_mcc',$('setup_wu_mcc').value)" /><br />
+      Wakeup mnc <input id="setup_wu_mnc" onchange="changeSetup('wakeup_mnc',$('setup_wu_mnc').value)" /><br />
+    </div>
     <div>
-    	<button onclick="generateMQJSON()">getMessageQueueJSON</button>
-    	<textarea id="queuedata"></textarea>
+      <button onclick="generateMQJSON()">getMessageQueueJSON</button>
+      <textarea id="queuedata"></textarea>
+    </div>
+    <div id="asTEST">
+      <h2>Send a thialfy-like notification to this app</h2>
+      <input id="channelVersion" value="1" />
+      <button onclick="updateVersion()">updateVersion()</button>
     </div>
   </body>
 </html>
