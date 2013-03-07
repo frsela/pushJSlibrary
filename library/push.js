@@ -211,7 +211,7 @@ _Push.prototype = {
       host: 'localhost',
       port: 8080,
       ssl: true,
-      keepalive: 5000,
+      keepalive: 60000,
       wakeup_enabled: false,
       wakeup_host: 'localhost',
       wakeup_port: 8080,
@@ -403,15 +403,16 @@ _Push.prototype = {
         break;
 
       case 'notification':
-        this.debug('[manageWebSocketResponse notification] Going to ack the message ' + msg.messageId);
+      case 'desktopNotification':
+        this.debug('[manageWebSocketResponse notification] Going to ack the message ', msg);
         var event = new CustomEvent('pushmessage', {
-          detail: { 'message': msg.message }
+          "detail": { "message": msg.updates }
         });
         window.dispatchEvent(event);
 
         this.sendWS({
           messageType: 'ack',
-          messageId: msg.messageId
+          messageId: msg
         });
         break;
     }
