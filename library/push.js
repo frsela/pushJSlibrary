@@ -229,9 +229,9 @@ _Push.prototype = {
       return;
     }
 
-    this.debug('Initializing');
+    this.debug('Initializing',this.server);
 
-    this.server.ad_ws = 'ws'+(this.server.ssl ? 's' : '')+'://';
+    this.server.ad_ws = 'ws'+(this.server.ssl == "true" || this.server.ssl ? 's' : '')+'://';
     this.server.ad_ws += this.server.host + ':' + this.server.port;
 
     this.server.ws = {

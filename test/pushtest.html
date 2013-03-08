@@ -1,4 +1,4 @@
-<!--
+  <!--
 To change this template, choose Tools | Templates
 and open the template in the editor.
 -->
@@ -36,10 +36,10 @@ and open the template in the editor.
     }
     function getSetup() {
       c = navigator.push.getSetup();
-      $('setup_debug').checked = (c.debug === "true" ? true : false);
+      $('setup_debug').checked = (c.debug === "true" || c.debug ? true : false);
       $('setup_host').value = c.host;
       $('setup_port').value = c.port;
-      $('setup_ssl').checked = (c.ssl === "true" ? true : false);
+      $('setup_ssl').checked = (c.ssl === "true" || c.ssl ? true : false);
       $('setup_ka').value = c.keepalive;
       $('setup_wu_enabled').checked = (c.wakeup_enabled === "true" ? true : false);
       $('setup_wu_host').value = c.wakeup_host;
