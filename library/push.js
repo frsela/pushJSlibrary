@@ -449,25 +449,25 @@ _Push.prototype = {
   }
 
   /**
-   * Check navigator.[mozPush|push] support and fallback if not supported
+   * Check navigator.[mozPushNotification|pushNotification] support and fallback if not supported
    */
   function init() {
     debug('Checking navigator.push existance');
-    if(navigator.push) {
-      debug('navigator.push supported by your browser');
+    if(navigator.pushNotification) {
+      debug('navigator.pushNotification supported by your browser');
       return;
     }
-    if(navigator.mozPush) {
-      debug('navigator.mozPush supported by your browser');
-      navigator.push = navigator.mozPush;
-      debug('navigator.push = navigator.mozPush');
+    if(navigator.mozPushNotification) {
+      debug('navigator.mozPushNotification supported by your browser');
+      navigator.pushNotification = navigator.mozPushNotification;
+      debug('navigator.pushNotification = navigator.mozPushNotification');
       return;
     }
-    debug('No push supported by your browser. Falling back');
-    navigator.push = new _Push();
-    navigator.mozPush = navigator.push;
-    navigator.push.defaultconfig();
-    navigator.push.init();
+    debug('No pushNotification supported by your browser. Falling back');
+    navigator.pushNotification = new _Push();
+    navigator.mozPushNotification = navigator.pushNotification;
+    navigator.pushNotification.defaultconfig();
+    navigator.pushNotification.init();
   }
 
   init();
