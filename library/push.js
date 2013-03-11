@@ -298,6 +298,9 @@ _Push.prototype = {
    * Open Websocket connection
    */
   openWebsocket: function() {
+    if (this.server.ws.ready)
+      return;
+
     this.debug('[openWebsocket] Openning websocket to: ' + this.server.ad_ws);
     this.server.ws.connection =
       new WebSocket(this.server.ad_ws, 'push-notification');
@@ -328,7 +331,7 @@ _Push.prototype = {
     this.debug('[onOpenWebsocket] Started registration to the notification server');
     if (this.wakeup.enabled) {
       this.sendWS({
-        uaid: null,
+        uaid: this.token,
         channelIDs: [],
         'interface': {
           ip: this.wakeup.host,
@@ -343,7 +346,7 @@ _Push.prototype = {
       });
     } else {
       this.sendWS({
-        uaid: null,
+        uaid: this.token,
         channelIDs: [],
         messageType: 'hello'
       });
@@ -361,7 +364,8 @@ _Push.prototype = {
     this.debug('[onCloseWebsocket] Closed connection to ' + this.server.ad +
       ' with code ' + e.code + ' and reason ' + e.reason);
     this.server.ws.ready = false;
-    clearInterval(this.keepalivetimer)
+    this.server.registeredUA = false;
+    clearInterval(this.keepalivetimer);
   },
 
   onErrorWebsocket: function(e) {
