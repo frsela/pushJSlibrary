@@ -50,10 +50,11 @@ _Push.prototype = {
       }.bind(this));
     }.bind(this));
 
+    var self=this;
     window.addEventListener('pushmessage', function(event) {
-      this.debug('[pushmessage Callback] Message: ',event);
+      self.debug('[pushmessage Callback] Message: ',event);
       if(cb.onmessage) {
-        cb.onmessage(event.detail.message);
+        cb.onmessage(JSON.parse(event.detail.message));
       }
     });
 
@@ -72,10 +73,11 @@ _Push.prototype = {
       }.bind(this));
     }.bind(this));
 
+    var self=this;
     window.addEventListener('pushmessage', function(event) {
-      this.debug('[pushmessage Callback] Message: ',event);
+      self.debug('[pushmessage Callback] Message: ',event);
       if(cb.onmessage) {
-        cb.onmessage(event.detail.message);
+        cb.onmessage(JSON.parse(event.detail.message));
       }
     });
 
@@ -405,7 +407,7 @@ _Push.prototype = {
       case 'desktopNotification':
         this.debug('[manageWebSocketResponse notification] Going to ack the message ', msg);
         var event = new CustomEvent('pushmessage', {
-          "detail": { "message": msg.updates }
+          "detail": { "message": JSON.stringify(msg.updates) }
         });
         window.dispatchEvent(event);
 
