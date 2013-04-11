@@ -25,24 +25,41 @@ _Push.prototype = {
   // Push methods
   /////////////////////////////////////////////////////////////////////////
 
-  requestURL: function(watoken, pbk) {
-    this.debug('[requestURL] Warning, DEPRECATED method. Use requestRemotePermission');
-    return this.requestRemotePermission(watoken, pbk);
+  setGlobals: function(_IN){
+    _IN = typeof _IN !== 'undefined' ? _IN : {whatever:true};
+    this._uaid     = typeof _IN.uaid     !== 'undefined' ? _IN.uaid     : this.token;
+    this._channels = typeof _IN.channels !== 'undefined' ? _IN.channels : [];
+    this._ip       = typeof _IN.ip       !== 'undefined' ? _IN.ip       : this.wakeup.host;
+    this._port     = typeof _IN.port     !== 'undefined' ? _IN.port     : this.wakeup.port;
+    this._mcc      = typeof _IN.mcc      !== 'undefined' ? _IN.mcc      : this.wakeup.mcc;
+    this._mnc      = typeof _IN.mnc      !== 'undefined' ? _IN.mnc      : this.wakeup.mnc;
+    this._protocol = typeof _IN.protocol !== 'undefined' ? _IN.protocol : this.wakeup.protocol;
+	
+	this._IN = _IN;
   },
 
-  requestRemotePermission: function(watoken, pbk) {
+  requestURL: function(watoken, certUrl) {
+    this.debug('[requestURL] Warning, DEPRECATED method. Use requestRemotePermission instead');
+    return this.requestRemotePermission(watoken, certUrl);
+  },
+
+  requestHello: function(_IN) {
+    this.hello(_IN); 
+  },
+
+  requestRemotePermissionEx: function(watoken, certUrl) {
     var cb = {};
 
-    if(!watoken || !pbk) {
-      this.debug('[requestRemotePermission] Error, no WAToken nor PBK provided');
+    if(!watoken || !certUrl) {
+      this.debug('[requestRemotePermission] Error, no WAToken nor certificate URL provided');
       setTimeout(function() {
-        if(cb.onerror) cb.onerror('Error, no WAToken nor PBK provided');
+        if(cb.onerror) cb.onerror('Error, no WAToken nor certificate URL provided');
       });
       return cb;
     }
 
     this.registerUA(function () {
-      this.registerWA(watoken, pbk, function(URL) {
+      this.registerWA(watoken, certUrl, function(URL) {
         this.debug('[registerWA Callback] URL: ',URL);
         if(cb.onsuccess) {
           cb.onsuccess(URL);
@@ -50,14 +67,47 @@ _Push.prototype = {
       }.bind(this));
     }.bind(this));
 
+    var self=this;
     window.addEventListener('pushmessage', function(event) {
-      this.debug('[pushmessage Callback] Message: ',event);
+      self.debug('[pushmessage Callback] Message: ',event);
       if(cb.onmessage) {
-        cb.onmessage(event.detail.message);
+        cb.onmessage(JSON.parse(event.detail.message));
       }
     });
 
     return cb;
+  },
+
+  requestRemotePermission: function(_IN) {
+    var cb = {};
+
+    this.setGlobals(_IN);
+
+    this.registerUA(function () {
+      this.registerWA(function(URL) {
+        this.debug('[registerWA Callback] URL: ',URL);
+        if(cb.onsuccess) {
+          cb.onsuccess(URL);
+        }
+      }.bind(this));
+    }.bind(this));
+
+    var self=this;
+    window.addEventListener('pushmessage', function(event) {
+      self.debug('[pushmessage Callback] Message: ',event);
+      if(cb.onmessage) {
+        cb.onmessage(JSON.parse(event.detail.message));
+      }
+    });
+
+    return cb;
+  },
+
+  revokeRemotePermission: function(_IN) {
+
+    this.setGlobals(_IN);
+
+    this.unregisterWA(_IN);
   },
 
   /**
@@ -104,7 +154,20 @@ _Push.prototype = {
       wakeup_port: ['WakeUp port', 'this.wakeup.port', true],
       wakeup_protocol: ['WakeUp protocol', 'this.wakeup.protocol', true],
       wakeup_mcc: ['WakeUp MCC', 'this.wakeup.mcc', true],
-      wakeup_mnc: ['WakeUp MNC', 'this.wakeup.mnc', true]
+      wakeup_mnc: ['WakeUp MNC', 'this.wakeup.mnc', true],
+
+      //ACK message type
+      ack: ['ack','this.ack', true],
+      ack_null_updates: ['ack_null_updates', 'this.ack_null_updates', true],
+      ack_invalid_channelID: ['ack_invalid_channelID','this.ack_invalid_channelID', true],
+      ack_null_channelID: ['ack_null_channelID','this.ack_null_channelID', true],
+      ack_null_version: ['ack_null_version','this.ack_null_version', true],
+      ack_invalid_version: ['ack_invalid_version','this.ack_invalid_version', true],
+
+      //PING PONG
+      ping: ['ping','this.ping', true],
+      pong: ['pong','this.pong', true],
+      other: ['other','this.other', true]
     };
     var _setup = function(param, value) {
       if(param === undefined) {
@@ -142,6 +205,21 @@ _Push.prototype = {
     _setup(_params.wakeup_mcc, data.wakeup_mcc);
     _setup(_params.wakeup_mnc, data.wakeup_mnc);
 
+    // ACK parameters
+    _setup(_params.ack, data.ack);
+    _setup(_params.ack_null_updates, data.ack_null_updates); 
+    _setup(_params.ack_invalid_channelID, data.ack_invalid_channelID);
+    _setup(_params.ack_null_channelID, data.ack_null_channelID);
+    _setup(_params.ack_null_version, data.ack_null_version);
+    _setup(_params.ack_invalid_version, data.ack_invalid_version);
+
+    // Ping pong params
+    _setup(_params.ping, data.ping);
+    _setup(_params.pong, data.pong);
+    _setup(_params.other, data.other);
+
+    //_setup(_params.)
+
     if (!this.initialized) {
       this.debug('[setup] Reinitializing . . .');
       this.init();
@@ -166,7 +244,16 @@ _Push.prototype = {
       wakeup_port: this.wakeup.port,
       wakeup_protocol: this.wakeup.protocol,
       wakeup_mcc: this.wakeup.mcc,
-      wakeup_mnc: this.wakeup.mnc
+      wakeup_mnc: this.wakeup.mnc,
+      ack: this.ack,
+      ack_null_updates: this.ack_null_updates,
+      ack_invalid_channelID: this.ack_invalid_channelID,
+      ack_null_channelID: this.ack_null_channelID,
+      ack_null_version: this.ack_null_version,
+      ack_invalid_version: this.ack_invalid_version,
+      ping: this.ping,
+      pong: this.pong,
+      other: this.other
     };
   },
 
@@ -185,13 +272,22 @@ _Push.prototype = {
       host: 'localhost',
       port: 8080,
       ssl: true,
-      keepalive: 5000,
+      keepalive: 60000,
       wakeup_enabled: false,
       wakeup_host: 'localhost',
       wakeup_port: 8080,
-      wakeup_protocol: 'tcp',
+      wakeup_protocol: 'udp',
       wakeup_mcc: '214',
-      wakeup_mnc: '07'
+      wakeup_mnc: '07',
+      ack: true,
+      ack_null_updates: false,
+      ack_invalid_channelID: false,
+      ack_null_channelID: false,
+      ack_null_version: false,
+      ack_invalid_version: false,
+      ping: true,
+      pong: false,
+      other: false
     })
   },
 
@@ -203,12 +299,10 @@ _Push.prototype = {
       return;
     }
 
-    this.debug('Initializing');
+    this.debug('Initializing',this.server);
 
-    this.server.ad_ws = 'ws'+(this.server.ssl ? 's' : '')+'://';
+    this.server.ad_ws = 'ws'+(this.server.ssl == "true" || this.server.ssl ? 's' : '')+'://';
     this.server.ad_ws += this.server.host + ':' + this.server.port;
-    this.server.ad_http = 'http'+(this.server.ssl ? 's' : '')+'://';
-    this.server.ad_http += this.server.host+ ':' + this.server.port;
 
     this.server.ws = {
       connection: null,
@@ -218,36 +312,41 @@ _Push.prototype = {
     this.server.registeredUA = false;
 
     this.token = null;
+    //this.token = 'dd9cbbe1-b255-48d5-8c6a-21702664ec33@98885403e99df8411e063fc8dbc88eac7efed54b';
     this.publicURLs = [];
 
     this.initialized = true;
   },
 
   /**
-   * Recover UAToken
+   * Hello
    */
+  hello: function(_IN) {
 
-  getToken: function(cb) {
-    if(this.token) {
-      this.debug('[getToken] Returning cached UAToken: ' + this.token);
-      if(cb) cb(this.token);
-      return;
+    this.setGlobals(_IN);
+
+    if (this.wakeup.enabled) {
+      this.sendWS({
+        uaid: this._uaid,
+        channelIDs: this._channels,
+        'interface': {
+          ip: this._ip,
+          port: this._port
+        },
+        mobilenetwork: {
+          mcc: this._mcc,
+          mnc: this._mnc
+        },
+        protocol: this._protocol,
+        messageType: 'hello'
+      });
+    } else {
+      this.sendWS({
+        uaid: this._uaid,
+        channelIDs: this._channels,
+        messageType: 'hello'
+      });
     }
-
-    var xmlhttp = new XMLHttpRequest({ mozSystem: true });
-    xmlhttp.onreadystatechange = (function() {
-      if (xmlhttp.readyState == 4) {
-        if (xmlhttp.status == 200) {
-          this.token = xmlhttp.responseText;
-          this.debug('[getToken] New UAToken recovered: ' + this.token);
-          if(cb) cb(this.token);
-        } else {
-          this.debug('[getToken] The notification server is not working');
-        }
-      }
-    }.bind(this));
-    xmlhttp.open('GET', this.server.ad_http + '/token', true);
-    xmlhttp.send(null);
   },
 
   /**
@@ -260,42 +359,44 @@ _Push.prototype = {
     }
 
     this.onRegisterUAMessage = function(msg) {
-      this.debug('[onRegisterUAMessage] TODO: Manage WATokens re-registration',
-        msg.WATokens)
-      /*
-      for(var i in msg.WATokens) {
-        // TODO - Manage re-registrations
-      }
-      */
+      this.token = msg.uaid;
       if(cb) cb();
     }.bind(this);
 
-    // We cann't continue without UAToken
-    this.getToken(function(uatoken) {
-      this.openWebsocket();
-    }.bind(this));
+    this.openWebsocket();
   },
 
   /**
    * Register WA
    */
-  registerWA: function(token, pbk, cb) {
+  registerWA: function(cb) {
     this.onRegisterWAMessage = function(msg) {
       this.debug('[onRegisterWAMessage] ', msg);
 
-      this.publicUrl = msg.url;
-      this.publicURLs.push(this.publicUrl);
+      this.publicURLs.push(msg.pushEndpoint);
 
-      if(cb) cb(this.publicUrl);
+      if(cb) cb(msg.pushEndpoint);
     }.bind(this);
 
     this.debug('[registerWA] Going to register WA');
     this.sendWS({
-      data: {
-        watoken: token,
-        pbkbase64: pbk                                                                              //utf8_to_b64(this.pbk)
-      },
-      messageType: 'registerWA'
+      channelID: this._channels,
+      messageType: 'register'
+    });
+  },
+
+  /**
+   * Unregister WA
+   */
+  unregisterWA: function(_IN) {
+
+    _IN = typeof _IN !== 'undefined' ? _IN : {whatever:true};
+    this._channels = typeof _IN.channels !== 'undefined' ? _IN.channels : [];
+
+    this.debug('[unregisterWA] Going to unregister WA');
+    this.sendWS({
+      channelID: this._channels,
+      messageType: 'unregister'
     });
   },
 
@@ -303,6 +404,9 @@ _Push.prototype = {
    * Open Websocket connection
    */
   openWebsocket: function() {
+    if (this.server.ws.ready)
+      return;
+
     this.debug('[openWebsocket] Openning websocket to: ' + this.server.ad_ws);
     this.server.ws.connection =
       new WebSocket(this.server.ad_ws, 'push-notification');
@@ -325,41 +429,27 @@ _Push.prototype = {
   /**
    * Websocket callbacks
    */
+
   onOpenWebsocket: function() {
     this.debug('[onOpenWebsocket] Opened connection to ' + this.server.host);
     this.server.ws.ready = true;
 
     // We shall registerUA each new connection
     this.debug('[onOpenWebsocket] Started registration to the notification server');
-    if (this.wakeup.enabled) {
-      this.sendWS({
-        data: {
-          uatoken: this.token,
-          'interface': {
-            ip: this.wakeup.host,
-            port: this.wakeup.port
-          },
-          mobilenetwork: {
-            mcc: this.wakeup.mcc,
-            mnc: this.wakeup.mnc
-          },
-          protocol: this.wakeup.protocol
-        },
-        messageType: 'registerUA'
-      });
-    } else {
-      this.sendWS({
-        data: {
-          uatoken: this.token,
-        },
-        messageType: 'registerUA'
-      });
-    }
+    this.hello(this._IN);
 
     if(this.server.keepalive > 0) {
       this.keepalivetimer = setInterval(function() {
-        this.debug('[Websocket Keepalive] Sending keepalive message. PING');
-        this.server.ws.connection.send('PING');
+        if (this.pong){
+		this.debug('[Websocket Keepalive] Sending keepalive message. PONG');
+        	this.server.ws.connection.send('PONG');
+	} else if (this.other) {
+		this.debug('[Websocket Keepalive] Sending keepalive message. OTHER');
+		this.server.ws.connection.send('OTHER');
+	} else if (this.ping) {
+		this.debug('[Websocket Keepalive] Sending keepalive message. PING');
+		this.server.ws.connection.send('PING');
+	}
       }.bind(this), this.server.keepalive);
     }
   },
@@ -368,7 +458,8 @@ _Push.prototype = {
     this.debug('[onCloseWebsocket] Closed connection to ' + this.server.ad +
       ' with code ' + e.code + ' and reason ' + e.reason);
     this.server.ws.ready = false;
-    clearInterval(this.keepalivetimer)
+    this.server.registeredUA = false;
+    clearInterval(this.keepalivetimer);
   },
 
   onErrorWebsocket: function(e) {
@@ -394,28 +485,66 @@ _Push.prototype = {
 
   manageWebSocketResponse: function(msg) {
     switch(msg.messageType) {
-      case 'registerUA':
+      case 'hello':
         this.server.registeredUA = true;
         this.onRegisterUAMessage(msg);
         break;
 
-      case 'registerWA':
-        this.debug('[manageWebSocketResponse registerWA] Registered WA');
+      case 'register':
+        this.debug('[manageWebSocketResponse register] Registered channelID');
         this.onRegisterWAMessage(msg);
         break;
 
       case 'notification':
-        this.debug('[manageWebSocketResponse notification] Going to ack the message ' + msg.messageId);
+      case 'desktopNotification':
+        this.debug('[manageWebSocketResponse notification] Going to ack the message ', msg);
         var event = new CustomEvent('pushmessage', {
-          detail: { 'message': msg.message }
+          "detail": { "message": JSON.stringify(msg.updates) }
         });
         window.dispatchEvent(event);
+	
+	if (this.ack_null_updates)	
+	{
+        	this.sendWS({
+          		messageType: 'ack',
+          		messageId: {messageType: "notification", updates: null, status: "OK"}
+        	});
+        	break;
+	} else if (this.ack_invalid_channelID)
+	{
+        	this.sendWS({
+          		messageType: 'ack',
+          		messageId: {messageType: "notification", updates: { channelID: "", version: 1}, status: "OK"}
+        	});
+        	break;
+	} else if (this.ack_null_channelID)
+	{
+        	this.sendWS({
+          		messageType: 'ack',
+          		messageId: {messageType: "notification", updates: { channelID: null, version: 1}, status: "OK"}
+        	});
+        	break;
+	} else if (this.ack_null_version)
+	{
+        	this.sendWS({
+          		messageType: 'ack',
+          		messageId: {messageType: "notification", updates: { channelID: "1234", version: null}, status: "OK"}
+        	});
+        	break;
+	} else if (this.ack_invalid_version)
+	{
+        	this.sendWS({
+          		messageType: 'ack',
+          		messageId: {messageType: "notification", updates: { channelID: "1234", version: ""}, status: "OK"}
+        	});
+        	break;
+	} 
 
-        this.sendWS({
-          messageType: 'ack',
-          messageId: msg.messageId
-        });
-        break;
+      	this.sendWS({
+       		messageType: 'ack',
+       		messageId: msg
+      	});
+       	break;
     }
   },
 
@@ -455,25 +584,25 @@ _Push.prototype = {
   }
 
   /**
-   * Check navigator.[mozPush|push] support and fallback if not supported
+   * Check navigator.[mozPushNotification|pushNotification] support and fallback if not supported
    */
   function init() {
     debug('Checking navigator.push existance');
-    if(navigator.push) {
-      debug('navigator.push supported by your browser');
+    if(navigator.pushNotification) {
+      debug('navigator.pushNotification supported by your browser');
       return;
     }
-    if(navigator.mozPush) {
-      debug('navigator.mozPush supported by your browser');
-      navigator.push = navigator.mozPush;
-      debug('navigator.push = navigator.mozPush');
+    if(navigator.mozPushNotification) {
+      debug('navigator.mozPushNotification supported by your browser');
+      navigator.pushNotification = navigator.mozPushNotification;
+      debug('navigator.pushNotification = navigator.mozPushNotification');
       return;
     }
-    debug('No push supported by your browser. Falling back');
-    navigator.push = new _Push();
-    navigator.mozPush = navigator.push;
-    navigator.push.defaultconfig();
-    navigator.push.init();
+    debug('No pushNotification supported by your browser. Falling back');
+    navigator.pushNotification = new _Push();
+    navigator.mozPushNotification = navigator.pushNotification;
+    navigator.pushNotification.defaultconfig();
+    navigator.pushNotification.init();
   }
 
   init();

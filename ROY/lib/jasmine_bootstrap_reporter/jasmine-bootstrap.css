@@ -1,0 +1,124 @@
+.jasmine_reporter {
+  margin-top: 4px;
+}
+
+.options, .run_spec {
+  float: right;
+}
+
+.options label {
+  padding-right: 10px;
+  padding-bottom: 0px;
+  color: #f5f5f5;
+}
+
+/* actually kind of liked these styles from the previous bootstrap */
+.spec.alert.alert-error, .runner.alert.alert-error{
+  background-color: #C43C35;
+  border-color: #B32B24;
+}
+
+.spec.alert.alert-success, .runner.alert.alert-success {
+  background-color: #57A957;
+  border-color: #469846;
+}
+
+/* even with the mini size, these buttons don't quite fit inline! */
+.run_spec {
+  margin-top: -2px;
+  margin-right: -7px;
+}
+
+.alert-block .run-spec {
+  margin-top: -4px;
+}
+
+/* margin bottom on alert messages is a little too generous for our purposes */
+.alert {
+  padding: 4px 10px;
+  margin-bottom: 6px;
+}
+.well {
+	margin-bottom: 15px;
+	background-color: #555555;
+	padding-top: 3px;
+	padding-bottom: 0px;
+	padding-left: 5px;
+	padding-right: 0px;
+}
+
+/* by default, a's inside alert-messages are black, but that makes them too hard to read */
+.alert.alert-success a {
+  color: #efe;
+}
+
+.alert.alert-error a {
+  color: #fee;
+}
+
+.alert.alert-info a {
+  color: #dff;
+}
+
+.alert a.run_spec {
+  color: #fff;
+}
+
+.alert a, .alert .finished-at, .alert .fail {
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0);
+}
+
+.alert .fail {
+  color: #fbb;
+  padding: 5px 0 8px;
+}
+
+/* overwrite the above styles for the suite description, which needs to be black ;) */
+.alert.alert-block > a.description {
+  color: #055005;
+  font-size: 12px;
+  font-weight: bold;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0);
+}
+
+/* padding on block messages is a little too generous for our purposes */
+.suite.alert.alert-block {
+  padding-top: 6px;
+  padding-bottom: 0px;
+}
+
+/* alert messages inside alert message are given too generous of a line-height */
+.alert div.spec, .alert div.suite {
+  line-height: normal;
+  margin-top: 8px;
+}
+.alert div.suite {
+	margin: 15px 15px;
+}
+
+.show-passed .suite.passed,
+.show-passed .spec.passed,
+.show-skipped .suite.skipped,
+.show-skipped .spec.skipped {
+  display: block;
+}
+
+.suite.passed, .spec.passed,
+.suite.skipped, .spec.skipped {
+  display: none;
+}
+
+.finished-at {
+  padding-left: 1em;
+  font-size: .8em;
+  color: #fff;
+}
+
+/* pre block text inside alert messages gets a little out of whack */
+.alert.alert-error .messages pre {
+  color: #000;
+  font-size: .85em;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0);
+  background: #ffdddd;
+  line-height: normal;
+}

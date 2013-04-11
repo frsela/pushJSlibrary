@@ -1,4 +1,4 @@
-<!--
+  <!--
 To change this template, choose Tools | Templates
 and open the template in the editor.
 -->
@@ -6,10 +6,102 @@ and open the template in the editor.
 <html>
   <head>
     <title>PUSH LIBRARY TEST</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></meta>
     <script src="../library/push.js"></script>
+    <script src="../library/html.js"></script>
   </head>
   <body>
-    <div>TODO write content</div>
+    <h1>TEST PUSH SERVER</h1>
+    <div id="mozAPI">
+      <div id="endpointURL"></div>
+      <hr>
+      <h2>hello tests</h2>
+      <button onclick="navigator.pushNotification.requestHello()">hello()</button>
+      <button onclick="navigator.pushNotification.requestHello( { uaid: null } )">hello_null_uaid()</button>
+      <button onclick="navigator.pushNotification.requestHello( { uaid: '' })">hello_invalid_uaid()</button>
+      <br>
+      <button onclick="navigator.pushNotification.requestHello( { channels: [] })">hello_noChannelID()</button>
+      <button onclick="navigator.pushNotification.requestHello( { channels: ['1234'] })">hello_oneChannelID()</button>
+      <button onclick="navigator.pushNotification.requestHello( { channels: ['1234','4321'] })">hello_severalChannelID()</button>
+      <br>
+	  <!--
+      <button onclick="navigator.pushNotification.requestHello( { ip: '256.256.256.256' } )">hello_interface_nokIP_okport()</button>
+      <button onclick="navigator.pushNotification.requestHello( { port: 80000 } )">hello_interface_okIP_nokport()</button>
+      <button onclick="navigator.pushNotification.requestHello()">hello_interface_okIP_okport()</button>
+      <button onclick="navigator.pushNotification.requestHello( { ip: '256.256.256.256' , port: 80000} )">hello_interface_nokIP_nokport()</button>
+      <br>
+      <button onclick="navigator.pushNotification.requestHello( { mcc: 'hola' } )">hello_mobile_nokmcc_okmnc()</button>
+      <button onclick="navigator.pushNotification.requestHello( { mnc: 'hola' } )">hello_mobile_okmcc_nokmnc()</button>
+      <button onclick="navigator.pushNotification.requestHello()">hello_mobile_okmcc_okmnc()</button>
+      <button onclick="navigator.pushNotification.requestHello( { mcc: 'hola', mnc: 'hola'} )">hello_mobile_nokmcc_nokmnc()</button>
+      <hr>
+	  -->
+	  <button onclick="register( { ip: '256.256.256.256' } )">hello_interface_nokIP_okport()</button>
+      <button onclick="register( { port: 80000 } )">hello_interface_okIP_nokport()</button>
+      <button onclick="register()">hello_interface_okIP_okport()</button>
+      <button onclick="register( { ip: '256.256.256.256' , port: 80000} )">hello_interface_nokIP_nokport()</button>
+      <br>
+      <button onclick="register( { mcc: 'hola' } )">hello_mobile_nokmcc_okmnc()</button>
+      <button onclick="register( { mnc: 'hola' } )">hello_mobile_okmcc_nokmnc()</button>
+      <button onclick="register()">hello_mobile_okmcc_okmnc()</button>
+      <button onclick="register( { mcc: 'hola', mnc: 'hola'} )">hello_mobile_nokmcc_nokmnc()</button>
+      <hr>
+      <h2>register tests</h2>
+      <button onclick="register( { channels: ['1234'] })">register()</button>
+      <button onclick="register( { channels: null } )">register_null()</button>
+      <button onclick="register( { channels: '' } )">register_invalid()</button>
+      <button onclick="register( { channels: ['4321'] })">register_several_channels()</button>
+      <br>
+      <hr>
+      <h2>unregister tests</h2>
+      <button onclick="navigator.pushNotification.revokeRemotePermission( { channels: '1234' })">unregister()</button>
+      <button onclick="navigator.pushNotification.revokeRemotePermission( { channels: null } )">unregister_null()</button>
+      <button onclick="navigator.pushNotification.revokeRemotePermission( { channels: '' } )">unregister_invalid()</button>
+      <hr>
+      <h2>ack tests</h2>
+      <input id="ack" type="checkbox" onclick="changeSetup('ack',$('ack').checked)" /> ACK<br />
+      <input id="ack_null_updates" type="checkbox" onclick="changeSetup('ack_null_updates',$('ack_null_updates').checked)" /> ACK_null_updates<br />
+      <input id="ack_invalid_channelID" type="checkbox" onclick="changeSetup('ack_invalid_channelID',$('ack_invalid_channelID').checked)" /> ACK_invalid_channelID<br />
+      <input id="ack_null_channelID" type="checkbox" onclick="changeSetup('ack_null_channelID',$('ack_null_channelID').checked)" /> ACK_null_channelID<br />
+      <input id="ack_null_version" type="checkbox" onclick="changeSetup('ack_null_version',$('ack_null_version').checked)" /> ACK_null_version<br />
+      <input id="ack_invalid_version" type="checkbox" onclick="changeSetup('ack_invalid_version',$('ack_invalid_version').checked)" /> ACK_invalid_version<br />
+      <br>
+      <hr>
+      <h2>PING PONG tests</h2>
+      <input id="ping" type="checkbox" onclick="changeSetup('ping',$('ping').checked)" /> PING<br />
+      <input id="pong" type="checkbox" onclick="changeSetup('pong',$('pong').checked)" /> PONG<br />
+      <input id="other" type="checkbox" onclick="changeSetup('other',$('other').checked)" /> Other thing<br />
+      <br>
+      <hr>
+      <div id="asyncmsg"></div>
+    </div>
+    <div id="extAPI">
+    </div>
+    <div id="mgntAPI" style="float: right; width: 300px; border: 1px solid black; position: relative; top: 0">
+      <h2>Push library setup</h2>
+      <input id="setup_debug" type="checkbox" onclick="changeSetup('debug',$('setup_debug').checked)" /> Debug enabled<br />
+      NS Server host <input id="setup_host" onchange="changeSetup('host',$('setup_host').value)" /><br />
+      NS Server port <input id="setup_port" onchange="changeSetup('port',$('setup_port').value)" /><br />
+      <input id="setup_ssl" type="checkbox" onclick="changeSetup('ssl',$('setup_ssl').checked)" /> SSL enabled<br />
+      Keepalive <input id="setup_ka" onchange="changeSetup('keepalive',$('setup_ka').value)" /> msec<br />
+      <input id="setup_wu_enabled" type="checkbox" onclick="changeSetup('wakeup_enabled',$('setup_wu_enabled').checked)" /> Wakeup enabled<br />
+      Wakeup host <input id="setup_wu_host" onchange="changeSetup('wakeup_host',$('setup_wu_host').value)" /><br />
+      Wakeup port <input id="setup_wu_port" onchange="changeSetup('wakeup_port',$('setup_wu_port').value)" /><br />
+      Wakeup protocol <input id="setup_wu_proto" onchange="changeSetup('wakeup_protocol',$('setup_wu_proto').value)" /><br />
+      Wakeup mcc <input id="setup_wu_mcc" onchange="changeSetup('wakeup_mcc',$('setup_wu_mcc').value)" /><br />
+      Wakeup mnc <input id="setup_wu_mnc" onchange="changeSetup('wakeup_mnc',$('setup_wu_mnc').value)" /><br />
+    </div>
+    <div>
+      <button onclick="generateMQJSON()">getMessageQueueJSON</button>
+      <textarea id="queuedata"></textarea>
+    </div>
+    <div id="asTEST">
+      <h2>Send a thialfy-like notification to this app</h2>
+      <input id="channelVersion" value="1" />
+      <button onclick="updateVersion()">updateVersion()</button>
+      <button onclick="updateVersion_noVersion()">updateVersion_noVersion()</button>
+      <button onclick="updateVersion_wrongEndPoint()">updateVersion_wrongEndPoint()</button>
+      <button onclick="updateVersion_incorrectVersion()">updateVersion_incorrectVersion()</button>
+    </div>
   </body>
 </html>
