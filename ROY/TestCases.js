@@ -208,7 +208,7 @@ describe("'Hello' tests ...", function(){
 });
 
 
-xdescribe("'Ping/Pong' tests (these pause for > 1 minute) ...", function(){
+describe("'Ping/Pong' tests (these pause for > 1 minute) ...", function(){
 
 	describe("Set PING to true", function(){
 		resetSettings();
@@ -230,7 +230,7 @@ xdescribe("'Ping/Pong' tests (these pause for > 1 minute) ...", function(){
 });
 
 
-xdescribe("'ACK' tests (these pause for > 1 minute) ...", function(){
+describe("'ACK' tests (these pause for > 1 minute) ...", function(){
 
 	describe("Set 'ack' to true", function(){
 		resetSettings();
