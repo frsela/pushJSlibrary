@@ -70,7 +70,7 @@
       oReq.onload = function() {
         console.log(this.responseText);
       };
-      oReq.open('put', 'https://localhost:8081/v1/notify/6529a94b1ffd75da4d5b6a7eff85e13b5905903dbe7d69ee60e135df09b1ce27', true);
+      oReq.open('put', 'https://owd-push-qa-fe1:8081/v1/notify/6529a94b1ffd75da4d5b6a7eff85e13b5905903dbe7d69ee60e135df09b1ce27', true);
       oReq.send('version='+$('channelVersion').value);
     };
 
