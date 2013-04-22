@@ -269,7 +269,7 @@ _Push.prototype = {
     this.wakeup = {};
     this.setup({
       debug: true,
-      host: 'localhost',
+      host: 'owd-push-qa-fe1',
       port: 8080,
       ssl: true,
       keepalive: 60000,
