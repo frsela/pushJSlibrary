@@ -505,6 +505,7 @@ _Push.prototype = {
 	
 	if (this.ack_null_updates)	
 	{
+		this.debug('[sendWS]{messageType: "ack",messageId: {messageType: "notification", updates: null, status: "OK"}}');
         	this.sendWS({
           		messageType: 'ack',
           		messageId: {messageType: "notification", updates: null, status: "OK"}
@@ -512,6 +513,7 @@ _Push.prototype = {
         	break;
 	} else if (this.ack_invalid_channelID)
 	{
+		this.debug('[sendWS]{messageType: "ack",messageId: {messageType: "notification", updates: { channelID: "", version: 1},status: "OK"}}');
         	this.sendWS({
           		messageType: 'ack',
           		messageId: {messageType: "notification", updates: { channelID: "", version: 1}, status: "OK"}
@@ -519,6 +521,7 @@ _Push.prototype = {
         	break;
 	} else if (this.ack_null_channelID)
 	{
+		this.debug('[sendWS]{messageType: "ack",messageId: {messageType: "notification", updates: { channelID: null, version: 1},status: "OK"}}');
         	this.sendWS({
           		messageType: 'ack',
           		messageId: {messageType: "notification", updates: { channelID: null, version: 1}, status: "OK"}
@@ -526,6 +529,7 @@ _Push.prototype = {
         	break;
 	} else if (this.ack_null_version)
 	{
+		this.debug('[sendWS]{messageType: "ack",messageId: {messageType: "notification", updates: { channelID: "1234", version: null},status: "OK"}}');
         	this.sendWS({
           		messageType: 'ack',
           		messageId: {messageType: "notification", updates: { channelID: "1234", version: null}, status: "OK"}
@@ -533,6 +537,7 @@ _Push.prototype = {
         	break;
 	} else if (this.ack_invalid_version)
 	{
+		this.debug('[sendWS]{messageType: "ack",messageId: {messageType: "notification", updates: { channelID: "1234", version: ""},status: "OK"}}');
         	this.sendWS({
           		messageType: 'ack',
           		messageId: {messageType: "notification", updates: { channelID: "1234", version: ""}, status: "OK"}
@@ -540,7 +545,9 @@ _Push.prototype = {
         	break;
 	} 
 
+	this.debug('[sendWS]{messageType: "ack",messageId:', msg);
       	this.sendWS({
+
        		messageType: 'ack',
        		messageId: msg
       	});

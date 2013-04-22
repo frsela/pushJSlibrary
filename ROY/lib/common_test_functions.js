@@ -3,7 +3,7 @@
 // COMMON FUNCTIONS.
 //
 var ConsoleLog	= new Array;
-var _PAUSE		= 10;
+var _PAUSE		= 6000;
 var _DEBUG 		= true;
 var _UAID 		= false;
 

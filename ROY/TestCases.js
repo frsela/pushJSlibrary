@@ -132,10 +132,12 @@ describe("'Hello' tests ...", function(){
 	describe("Hello() several channel IDs", function(){
 		resetSettings();
 		doRegister({channels:'1234'}); 
+		doRegister({channels:'4321'});
 		doHello({channels:['1234','4321']});
 		checkMessage(true, ['[sendWS]', '"uaid":', '"channelIDs":["1234","4321"]', '"messageType":"hello"']);
 		checkMessage(true, ['[onMessageWebsocket]', '"status":200', '"uaid":_UAID', '"messageType":"hello"']);
 		doUnRegister(true, {channels:'1234'});
+		doUnRegister(true, {channels:'4321'});
 	});
 	
 	describe("Hello() invalid IP, valid PORT", function(){
@@ -215,7 +217,6 @@ describe("'Ping/Pong' tests (these pause for > 1 minute) ...", function(){
 		setTrue("ping");
 		checkMessage(true, ['[Websocket Keepalive]', 'Sending keepalive message', 'PING']);
 		checkMessage(true, ['[onMessageWebsocket]', 'Message received', 'PONG']);
-		checkMessage(false, ['[onMessageWebsocket]', '"status":"ERROR"']);
 		doUnRegister(true);
 	});
 	
@@ -223,10 +224,17 @@ describe("'Ping/Pong' tests (these pause for > 1 minute) ...", function(){
 		resetSettings();
 		setTrue("pong");
 		checkMessage(true, ['[Websocket Keepalive]', 'Sending keepalive message', 'PONG']);
-		checkMessage(true, ['[onMessageWebsocket]', '"status":"ERROR"']);
+		checkMessage(true, ['[onMessageWebsocket]','"status":450','"reason":"Data received is not a valid JSON package"']);
 		doUnRegister(true);
 	});
-	
+
+	describe("Set OTHER to true", function(){
+		resetSettings();
+		setTrue("other");
+		checkMessage(true, ['[Websocket Keepalive]', 'Sending keepalive message', 'OTHER']);
+		checkMessage(true, ['[onMessageWebsocket]','"status":450','"reason":"Data received is not a valid JSON package"']);
+		doUnRegister(true);
+	});
 });
 
 
@@ -235,7 +243,6 @@ describe("'ACK' tests (these pause for > 1 minute) ...", function(){
 	describe("Set 'ack' to true", function(){
 		resetSettings();
 		setTrue("ack");
-		checkMessage(false, ['[onMessageWebsocket]', '"status":"ERROR"']);
 		doUnRegister(true);
 	});
 	

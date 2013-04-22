@@ -24,19 +24,7 @@ and open the template in the editor.
       <button onclick="navigator.pushNotification.requestHello( { channels: ['1234'] })">hello_oneChannelID()</button>
       <button onclick="navigator.pushNotification.requestHello( { channels: ['1234','4321'] })">hello_severalChannelID()</button>
       <br>
-	  <!--
-      <button onclick="navigator.pushNotification.requestHello( { ip: '256.256.256.256' } )">hello_interface_nokIP_okport()</button>
-      <button onclick="navigator.pushNotification.requestHello( { port: 80000 } )">hello_interface_okIP_nokport()</button>
-      <button onclick="navigator.pushNotification.requestHello()">hello_interface_okIP_okport()</button>
-      <button onclick="navigator.pushNotification.requestHello( { ip: '256.256.256.256' , port: 80000} )">hello_interface_nokIP_nokport()</button>
-      <br>
-      <button onclick="navigator.pushNotification.requestHello( { mcc: 'hola' } )">hello_mobile_nokmcc_okmnc()</button>
-      <button onclick="navigator.pushNotification.requestHello( { mnc: 'hola' } )">hello_mobile_okmcc_nokmnc()</button>
-      <button onclick="navigator.pushNotification.requestHello()">hello_mobile_okmcc_okmnc()</button>
-      <button onclick="navigator.pushNotification.requestHello( { mcc: 'hola', mnc: 'hola'} )">hello_mobile_nokmcc_nokmnc()</button>
-      <hr>
-	  -->
-	  <button onclick="register( { ip: '256.256.256.256' } )">hello_interface_nokIP_okport()</button>
+      <button onclick="register( { ip: '256.256.256.256' } )">hello_interface_nokIP_okport()</button>
       <button onclick="register( { port: 80000 } )">hello_interface_okIP_nokport()</button>
       <button onclick="register()">hello_interface_okIP_okport()</button>
       <button onclick="register( { ip: '256.256.256.256' , port: 80000} )">hello_interface_nokIP_nokport()</button>
