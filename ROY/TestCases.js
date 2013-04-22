@@ -21,7 +21,7 @@ describe("'Register' tests ...", function(){
 		checkMessage(true, ['[sendWS]', '"channelID":null', '"messageType":"register"']);
 		checkMessage(true, ['[onMessageWebsocket]' , '"messageType":"register"', '"status":457', '"reason":"Not valid channelID sent"']);
 		checkMessage(true, ['[onRegisterWAMessage]', '"messageType":"register"', '"status":457', '"reason":"Not valid channelID sent"']);
-		doUnRegister(true, {channels:'1234'});
+		//doUnRegister(true, {channels:'1234'});
 	});
 	
 	describe("Register() invalid", function(){
@@ -31,7 +31,7 @@ describe("'Register' tests ...", function(){
 		checkMessage(true, ['[sendWS]', '"channelID":""', '"messageType":"register"']);
 		checkMessage(true, ['[onMessageWebsocket]' , '"messageType":"register"', '"status":457', '"reason":"Not valid channelID sent"',]);
 		checkMessage(true, ['[onRegisterWAMessage]', '"messageType":"register"', '"status":457', '"reason":"Not valid channelID sent"']);
-		doUnRegister(true, {channels:'1234'});
+		//doUnRegister(true, {channels:'1234'});
 	});
 	
 	describe("Register() several channels", function(){
@@ -66,7 +66,7 @@ describe("'Un-register' tests ...", function(){
 		doUnRegister(false, { channels: null });
 		checkMessage(true, ['[sendWS]', '"channelID":null', '"messageType":"unregister"']);
 		checkMessage(true, ['[onMessageWebsocket]', '"status":457', '"reason":"Not valid channelID sent"', '"messageType":"unregister"']);
-		doUnRegister(true, {channels:'1234'});
+		//doUnRegister(true, {channels:'1234'});
 	});
 	
 	describe("Unregister() invalid", function(){
@@ -76,7 +76,7 @@ describe("'Un-register' tests ...", function(){
 		doUnRegister(false, { channels: '' });
 		checkMessage(true, ['[sendWS]', 'Preparing to send', '"channelID":""', '"messageType":"unregister"']);
 		checkMessage(true, ['[onMessageWebsocket]', '"status":457', '"reason":"Not valid channelID sent"', '"messageType":"unregister"']);
-		doUnRegister(true, {channels:'1234'});
+		//doUnRegister(true, {channels:'1234'});
 	});
 	
 });
