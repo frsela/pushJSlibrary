@@ -335,7 +335,7 @@ _Push.prototype = {
       this.sendWS({
         uaid: this.token,
         channelIDs: [],
-        'interface': {
+        wakeup_hostport: {
           ip: this.wakeup.host,
           port: this.wakeup.port
         },
