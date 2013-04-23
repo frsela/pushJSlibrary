@@ -357,7 +357,7 @@ _Push.prototype = {
     if(this.server.keepalive > 0) {
       this.keepalivetimer = setInterval(function() {
         this.debug('[Websocket Keepalive] Sending keepalive message. PING');
-        this.server.ws.connection.send('PING');
+        this.server.ws.connection.send('{}');
       }.bind(this), this.server.keepalive);
     }
   },
@@ -378,9 +378,6 @@ _Push.prototype = {
 
   onMessageWebsocket: function(e) {
     this.debug('[onMessageWebsocket] Message received --- ' + e.data);
-    if (e.data === 'PONG') {
-      return;
-    }
     var msg = JSON.parse(e.data);
     if(msg[0]) {
       for(var m in msg) {
@@ -393,6 +390,10 @@ _Push.prototype = {
 
   manageWebSocketResponse: function(msg) {
     switch(msg.messageType) {
+      case undefined:
+        this.debug('[manageWebSocketResponse pong] PONG response');
+        break;
+
       case 'hello':
         this.server.registeredUA = true;
         this.onRegisterUAMessage(msg);
