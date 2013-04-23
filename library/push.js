@@ -215,7 +215,7 @@ _Push.prototype = {
       ssl: true,
       keepalive: 60000,
       wakeup_enabled: false,
-      wakeup_host: 'localhost',
+      wakeup_host: '127.0.0.1',
       wakeup_port: 8080,
       wakeup_protocol: 'tcp',
       wakeup_mcc: '214',
