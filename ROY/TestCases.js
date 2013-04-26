@@ -97,7 +97,7 @@ describe("'Hello' tests ...", function(){
 		resetSettings();
 		doRegister({channels:'1234'}); 
 		doHello({uaid:null});
-		checkMessage(true, ['[sendWS]', '"uaid":_UAID', '"channelIDs":[]', '"messageType":"hello"']);
+		checkMessage(true, ['[sendWS]', '"uaid":null', '"channelIDs":[]', '"messageType":"hello"']);
 		checkMessage(true, ['[onMessageWebsocket]', '"status":200', '"uaid":_UAID', '"messageType":"hello"']);
 		doUnRegister(true, {channels:'1234'});
 	});
@@ -144,7 +144,7 @@ describe("'Hello' tests ...", function(){
 		resetSettings();
 		doRegister({channels:'1234'}); 
 		doHello({ip:'256.256.256.256'});
-		checkMessage(true, ['[sendWS]', '"uaid":', '"channelIDs":[]', '"messageType":"hello"']);
+		checkMessage(true, ['[sendWS]', '"uaid":', '"channelIDs":[]', '"messageType":"hello"','"interface"','"ip":"256.256.256.256"','"port":8080','"mobilenetwork"','"mcc":"214"','"mnc":"07"','"protocol":"tcp"']);
 		checkMessage(true, ['[onMessageWebsocket]', '"status":200', '"uaid":_UAID', '"messageType":"hello"']);
 		doUnRegister(true, {channels:'1234'});
 	});
@@ -153,7 +153,7 @@ describe("'Hello' tests ...", function(){
 		resetSettings();
 		doRegister({channels:'1234'}); 
 		doHello({port:80000});
-		checkMessage(true, ['[sendWS]', '"uaid":', '"channelIDs":[]', '"messageType":"hello"']);
+		checkMessage(true, ['[sendWS]', '"uaid":', '"channelIDs":[]', '"messageType":"hello"','"interface"','"ip":"owd-push-qa-fe1"','"port":80000','"mobilenetwork"','"mcc":"214"','"mnc":"07"','"protocol":"tcp"']);
 		checkMessage(true, ['[onMessageWebsocket]', '"status":200', '"uaid":_UAID', '"messageType":"hello"']);
 		doUnRegister(true, {channels:'1234'});
 	});
@@ -162,7 +162,7 @@ describe("'Hello' tests ...", function(){
 		resetSettings();
 		doRegister({channels:'1234'}); 
 		doHello();
-		checkMessage(true, ['[sendWS]', '"uaid":', '"channelIDs":[]', '"messageType":"hello"']);
+		checkMessage(true, ['[sendWS]', '"uaid":', '"channelIDs":[]', '"messageType":"hello"','"interface"','"ip":"owd-push-qa-fe1"','"port":8080','"mobilenetwork"','"mcc":"214"','"mnc":"07"','"protocol":"tcp"']);
 		checkMessage(true, ['[onMessageWebsocket]', '"status":201', '"uaid":_UAID', '"messageType":"hello"']);
 		doUnRegister(true, {channels:'1234'});
 	});
@@ -170,7 +170,7 @@ describe("'Hello' tests ...", function(){
 	describe("Hello() invalid IP, invalid PORT", function(){
 		doRegister({channels:'1234'}); 
 		doHello({ip:'256.256.256.256',port:80000});
-		checkMessage(true, ['[sendWS]', '"uaid":', '"channelIDs":[]', '"messageType":"hello"']);
+		checkMessage(true, ['[sendWS]', '"uaid":', '"channelIDs":[]', '"messageType":"hello"','"interface"','"ip":"256.256.256.256"','"port":80000','"mobilenetwork"','"mcc":"214"','"mnc":"07"','"protocol":"tcp"']);
 		checkMessage(true, ['[onMessageWebsocket]', '"status":200', '"uaid":_UAID', '"messageType":"hello"']);
 		doUnRegister(true, {channels:'1234'});
 	});
@@ -178,7 +178,7 @@ describe("'Hello' tests ...", function(){
 	describe("Hello() invalid mcc, valid mnc", function(){
 		doRegister({channels:'1234'}); 
 		doHello({mcc:'hola'});
-		checkMessage(true, ['[sendWS]', '"uaid":', '"channelIDs":[]', '"messageType":"hello"']);
+		checkMessage(true, ['[sendWS]', '"uaid":', '"channelIDs":[]', '"messageType":"hello"','"interface"','"ip":"owd-push-qa-fe1"','"port":8080','"mobilenetwork"','"mcc":"hola"','"mnc":"07"','"protocol":"tcp"']);
 		checkMessage(true, ['[onMessageWebsocket]', '"status":200', '"uaid":_UAID', '"messageType":"hello"']);
 		doUnRegister(true, {channels:'1234'});
 	});
@@ -186,7 +186,7 @@ describe("'Hello' tests ...", function(){
 	describe("Hello()  valid mcc, invalid mnc", function(){
 		doRegister({channels:'1234'}); 
 		doHello({mnc:'hola'});
-		checkMessage(true, ['[sendWS]', '"uaid":', '"channelIDs":[]', '"messageType":"hello"']);
+		checkMessage(true, ['[sendWS]', '"uaid":', '"channelIDs":[]', '"messageType":"hello"','"interface"','"ip":"owd-push-qa-fe1"','"port":8080','"mobilenetwork"','"mcc":"214"','"mnc":"hola"','"protocol":"tcp"']);
 		checkMessage(true, ['[onMessageWebsocket]', '"status":200', '"uaid":_UAID', '"messageType":"hello"']);
 		doUnRegister(true, {channels:'1234'});
 	});
@@ -194,7 +194,7 @@ describe("'Hello' tests ...", function(){
 	describe("Hello()  valid mcc, valid mnc", function(){
 		doRegister({channels:'1234'}); 
 		doHello();
-		checkMessage(true, ['[sendWS]', '"uaid":', '"channelIDs":[]', '"messageType":"hello"']);
+		checkMessage(true, ['[sendWS]', '"uaid":', '"channelIDs":[]', '"messageType":"hello"','"interface"','"ip":"owd-push-qa-fe1"','"port":8080','"mobilenetwork"','"mcc":"214"','"mnc":"07"','"protocol":"tcp"']);
 		checkMessage(true, ['[onMessageWebsocket]', '"status":201', '"uaid":_UAID', '"messageType":"hello"']);
 		doUnRegister(true, {channels:'1234'});
 	});
@@ -202,7 +202,7 @@ describe("'Hello' tests ...", function(){
 	describe("Hello()  invalid mcc, invalid mnc", function(){
 		doRegister({channels:'1234'}); 
 		doHello({mcc:'hola',mnc:'hola'});
-		checkMessage(true, ['[sendWS]', '"uaid":', '"channelIDs":[]', '"messageType":"hello"']);
+		checkMessage(true, ['[sendWS]', '"uaid":', '"channelIDs":[]', '"messageType":"hello"','"interface"','"ip":"owd-push-qa-fe1"','"port":8080','"mobilenetwork"','"mcc":"hola"','"mnc":"hola"','"protocol":"tcp"']);
 		checkMessage(true, ['[onMessageWebsocket]', '"status":200', '"uaid":_UAID', '"messageType":"hello"']);
 		doUnRegister(true, {channels:'1234'});
 	});
