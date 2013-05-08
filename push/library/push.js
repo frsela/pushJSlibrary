@@ -61,7 +61,7 @@ _Push.prototype = {
     return cb;
   },
 
-  requestRemotePermission: function() {
+  register: function() {
     var cb = {};
 
     this.registerUA(function () {
@@ -84,7 +84,7 @@ _Push.prototype = {
     return cb;
   },
 
-  revokeRemotePermission: function() {
+  unregister: function() {
     this.unregisterWA();
   },
 
@@ -414,7 +414,7 @@ _Push.prototype = {
 
         this.sendWS({
           messageType: 'ack',
-          messageId: msg
+          updates: msg.updates
         });
         break;
     }
@@ -460,21 +460,21 @@ _Push.prototype = {
    */
   function init() {
     debug('Checking navigator.push existance');
-    if(navigator.pushNotification) {
-      debug('navigator.pushNotification supported by your browser');
+    if(navigator.push) {
+      debug('navigator.push supported by your browser');
       return;
     }
-    if(navigator.mozPushNotification) {
-      debug('navigator.mozPushNotification supported by your browser');
-      navigator.pushNotification = navigator.mozPushNotification;
-      debug('navigator.pushNotification = navigator.mozPushNotification');
+    if(navigator.mozPush) {
+      debug('navigator.mozPush supported by your browser');
+      navigator.push = navigator.mozPush;
+      debug('navigator.push = navigator.mozPush');
       return;
     }
-    debug('No pushNotification supported by your browser. Falling back');
-    navigator.pushNotification = new _Push();
-    navigator.mozPushNotification = navigator.pushNotification;
-    navigator.pushNotification.defaultconfig();
-    navigator.pushNotification.init();
+    debug('No push supported by your browser. Falling back');
+    navigator.push = new _Push();
+    navigator.mozPush = navigator.push;
+    navigator.push.defaultconfig();
+    navigator.push.init();
   }
 
   init();
