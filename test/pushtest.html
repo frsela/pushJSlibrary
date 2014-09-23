@@ -1,7 +1,3 @@
-  <!--
-To change this template, choose Tools | Templates
-and open the template in the editor.
--->
 <!DOCTYPE html>
 <html>
   <head>
@@ -47,6 +43,7 @@ and open the template in the editor.
       $('setup_wu_proto').value = c.wakeup_protocol;
       $('setup_wu_mcc').value = c.wakeup_mcc;
       $('setup_wu_mnc').value = c.wakeup_mnc;
+      $('setup_wu_netid').value = c.wakeup_netid;
     }
     function changeSetup(param, value) {
       navigator.push.setup(JSON.parse('{"'+param+'": "'+value+'"}'));
@@ -86,6 +83,7 @@ and open the template in the editor.
       Wakeup protocol <input id="setup_wu_proto" onchange="changeSetup('wakeup_protocol',$('setup_wu_proto').value)" /><br />
       Wakeup mcc <input id="setup_wu_mcc" onchange="changeSetup('wakeup_mcc',$('setup_wu_mcc').value)" /><br />
       Wakeup mnc <input id="setup_wu_mnc" onchange="changeSetup('wakeup_mnc',$('setup_wu_mnc').value)" /><br />
+      Wakeup netid <input id="setup_wu_netid" onchange="changeSetup('wakeup_netid',$('setup_wu_netid').value)" /><br />
     </div>
     <div>
       <button onclick="generateMQJSON()">getMessageQueueJSON</button>

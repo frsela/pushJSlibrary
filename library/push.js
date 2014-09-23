@@ -25,49 +25,13 @@ _Push.prototype = {
   // Push methods
   /////////////////////////////////////////////////////////////////////////
 
-  requestURL: function(watoken, certUrl) {
-    this.debug('[requestURL] Warning, DEPRECATED method. Use requestRemotePermission instead');
-    return this.requestRemotePermission(watoken, certUrl);
-  },
-
-  requestRemotePermissionEx: function(watoken, certUrl) {
-    var cb = {};
-
-    if(!watoken || !certUrl) {
-      this.debug('[requestRemotePermission] Error, no WAToken nor certificate URL provided');
-      setTimeout(function() {
-        if(cb.onerror) cb.onerror('Error, no WAToken nor certificate URL provided');
-      });
-      return cb;
-    }
-
-    this.registerUA(function () {
-      this.registerWA(watoken, certUrl, function(URL) {
-        this.debug('[registerWA Callback] URL: ',URL);
-        if(cb.onsuccess) {
-          cb.onsuccess(URL);
-        }
-      }.bind(this));
-    }.bind(this));
-
-    var self=this;
-    window.addEventListener('pushmessage', function(event) {
-      self.debug('[pushmessage Callback] Message: ',event);
-      if(cb.onmessage) {
-        cb.onmessage(JSON.parse(event.detail.message));
-      }
-    });
-
-    return cb;
-  },
-
   register: function() {
     var cb = {};
 
     this.registerUA(function () {
       this.registerWA(function(URL) {
         this.debug('[registerWA Callback] URL: ',URL);
-        if(cb.onsuccess) {
+        if (cb.onsuccess) {
           cb.onsuccess(URL);
         }
       }.bind(this));
@@ -76,7 +40,7 @@ _Push.prototype = {
     var self=this;
     window.addEventListener('pushmessage', function(event) {
       self.debug('[pushmessage Callback] Message: ',event);
-      if(cb.onmessage) {
+      if (cb.onmessage) {
         cb.onmessage(JSON.parse(event.detail.message));
       }
     });
@@ -105,14 +69,15 @@ _Push.prototype = {
    *        use only if you know what are you doing <---
    *  "wakeup_enabled": [ true | false ],
    *  "wakeup_host": "WAKEUP_HOSTNAME",
-   *  "wakeup_port: WAKEUP_PORT,
-   *  "wakeup_protocol: [ 'tcp' | 'udp' ],
-   *  "wakeup_mcc: 'MOBILE COUNTRY CODE',
-   *  "wakeup_mnc: 'MOBILE NETWORK CODE'
+   *  "wakeup_port": WAKEUP_PORT,
+   *  "wakeup_protocol": [ 'tcp' | 'udp' ],
+   *  "wakeup_mcc": 'MOBILE COUNTRY CODE',
+   *  "wakeup_mnc": 'MOBILE NETWORK CODE',
+   *  "wakeup_netid": 'MOBILE NETWORK ID'
    * }
    */
   setup: function(data) {
-    if(!data)
+    if (!data)
       return;
 
     // Setupable parameters:
@@ -132,10 +97,11 @@ _Push.prototype = {
       wakeup_port: ['WakeUp port', 'this.wakeup.port', true],
       wakeup_protocol: ['WakeUp protocol', 'this.wakeup.protocol', true],
       wakeup_mcc: ['WakeUp MCC', 'this.wakeup.mcc', true],
-      wakeup_mnc: ['WakeUp MNC', 'this.wakeup.mnc', true]
+      wakeup_mnc: ['WakeUp MNC', 'this.wakeup.mnc', true],
+      wakeup_netid: ['wakeup_netid', 'this.wakeup.netid', true]
     };
     var _setup = function(param, value) {
-      if(param === undefined) {
+      if (param === undefined) {
         this.debug('[setup::_setup] No recognized param value');
         return;
       }
@@ -144,7 +110,7 @@ _Push.prototype = {
       }
 
       this.debug('[setup::_setup] Changing ' + param[0] + ' to: ' + value);
-      if(typeof(value) == 'string') {
+      if (typeof(value) == 'string') {
         eval(param[1] += ' = "' + value + '"');
       } else {
         eval(param[1] += ' = ' + value);
@@ -169,6 +135,7 @@ _Push.prototype = {
     _setup(_params.wakeup_protocol, data.wakeup_protocol);
     _setup(_params.wakeup_mcc, data.wakeup_mcc);
     _setup(_params.wakeup_mnc, data.wakeup_mnc);
+    _setup(_params.wakeup_netid, data.wakeup_netid);
 
     if (!this.initialized) {
       this.debug('[setup] Reinitializing . . .');
@@ -194,7 +161,8 @@ _Push.prototype = {
       wakeup_port: this.wakeup.port,
       wakeup_protocol: this.wakeup.protocol,
       wakeup_mcc: this.wakeup.mcc,
-      wakeup_mnc: this.wakeup.mnc
+      wakeup_mnc: this.wakeup.mnc,
+      wakeup_netid: this.wakeup.netid
     };
   },
 
@@ -219,7 +187,8 @@ _Push.prototype = {
       wakeup_port: 8080,
       wakeup_protocol: 'tcp',
       wakeup_mcc: '214',
-      wakeup_mnc: '07'
+      wakeup_mnc: '07',
+      wakeup_netid: '214.7.0.1'
     })
   },
 
@@ -227,7 +196,7 @@ _Push.prototype = {
    * Initialize
    */
   init: function() {
-    if(this.initialized) {
+    if (this.initialized) {
       return;
     }
 
@@ -254,13 +223,13 @@ _Push.prototype = {
    */
   registerUA: function(cb) {
     if(this.server.registeredUA) {
-      if(cb) cb();
+      if (cb) cb();
       return;
     }
 
     this.onRegisterUAMessage = function(msg) {
       this.token = msg.uaid;
-      if(cb) cb();
+      if (cb) cb();
     }.bind(this);
 
     this.openWebsocket();
@@ -275,7 +244,7 @@ _Push.prototype = {
 
       this.publicURLs.push(msg.pushEndpoint);
 
-      if(cb) cb(msg.pushEndpoint);
+      if (cb) cb(msg.pushEndpoint);
     }.bind(this);
 
     this.debug('[registerWA] Going to register WA');
@@ -341,7 +310,8 @@ _Push.prototype = {
         },
         mobilenetwork: {
           mcc: this.wakeup.mcc,
-          mnc: this.wakeup.mnc
+          mnc: this.wakeup.mnc,
+          netid: this.wakeup.netid
         },
         protocol: this.wakeup.protocol,
         messageType: 'hello'
@@ -354,7 +324,7 @@ _Push.prototype = {
       });
     }
 
-    if(this.server.keepalive > 0) {
+    if (this.server.keepalive > 0) {
       this.keepalivetimer = setInterval(function() {
         this.debug('[Websocket Keepalive] Sending keepalive message. PING');
         this.server.ws.connection.send('{}');
@@ -379,8 +349,8 @@ _Push.prototype = {
   onMessageWebsocket: function(e) {
     this.debug('[onMessageWebsocket] Message received --- ' + e.data);
     var msg = JSON.parse(e.data);
-    if(msg[0]) {
-      for(var m in msg) {
+    if (msg[0]) {
+      for (var m in msg) {
         this.manageWebSocketResponse(msg[m]);
       }
     } else {
@@ -389,7 +359,7 @@ _Push.prototype = {
   },
 
   manageWebSocketResponse: function(msg) {
-    switch(msg.messageType) {
+    switch (msg.messageType) {
       case undefined:
         this.debug('[manageWebSocketResponse pong] PONG response');
         break;
@@ -424,9 +394,9 @@ _Push.prototype = {
    * Debug logger method
    */
   debug: function(msg, obj) {
-    if(this.DEBUG) {
+    if (this.DEBUG) {
       var message = msg;
-      if(obj) {
+      if (obj) {
         message += ': ' + JSON.stringify(obj);
       }
       console.log('[PUSH (LIBRARY) LIBRARY DEBUG] ' + message);
@@ -446,9 +416,9 @@ _Push.prototype = {
    * Debug logger method
    */
   function debug(msg, obj) {
-    if(DEBUG) {
+    if (DEBUG) {
       var message = msg;
-      if(obj) {
+      if (obj) {
         message += ': ' + JSON.stringify(obj);
       }
       console.log('[PUSH (INIT) LIBRARY DEBUG] ' + message)
@@ -456,15 +426,15 @@ _Push.prototype = {
   }
 
   /**
-   * Check navigator.[mozPushNotification|pushNotification] support and fallback if not supported
+   * Check navigator.[mozPush|push] support and fallback if not supported
    */
   function init() {
     debug('Checking navigator.push existance');
-    if(navigator.push) {
+    if (navigator.push) {
       debug('navigator.push supported by your browser');
       return;
     }
-    if(navigator.mozPush) {
+    if (navigator.mozPush) {
       debug('navigator.mozPush supported by your browser');
       navigator.push = navigator.mozPush;
       debug('navigator.push = navigator.mozPush');
